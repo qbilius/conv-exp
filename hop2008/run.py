@@ -6,29 +6,25 @@ import numpy as np
 import scipy.io
 import pandas
 import seaborn as sns
+import sklearn.cluster, sklearn.metrics
 
 sys.path.insert(0, '../../psychopy_ext')
 from psychopy_ext import models, stats
 
 import base
-from base import Base, Shape
 
 
-class HOP2008(Shape):
+class HOP2008(base.Base):
 
     def __init__(self, *args, **kwargs):
-        super(HOP2008, self).__init__(*args, **kwargs)
         self.kwargs = kwargs
         self.dims = OrderedDict([
                         ('px', np.array([0,0,0,1,1,1,2,2,2])),
                         ('shape', np.array([0,1,2,1,2,0,2,0,1]))])
-
-    @base._check_force('dis')
-    def dissimilarity(self):
-        self.classify()
-        self.dis = super(Base, self).dissimilarity(self.resps,
-                                                   kind='euclidean')
-        self.save('dis')
+        self.colors = OrderedDict([('px', base.COLORS[0]),
+                                   ('shape', base.COLORS[1])])
+        self.skip_hmo = False
+        super(HOP2008, self).__init__(*args, **kwargs)
 
     def mds(self):
         self.dissimilarity()
@@ -37,12 +33,10 @@ class HOP2008(Shape):
         super(Base, self).mds(self.dis, ims, kind='metric', seed=11)  # just to match behavioral mds
         self.show(pref='mds')
 
-    def corr(self):
-        super(HOP2008, self).corr(['px', 'shape'], subplots=False,
-                                  **self.kwargs)
 
-    def plot_lin(self, subplots=False):
-        super(HOP2008, self).plot_lin(subplots=False)
+
+    # def plot_lin(self, subplots=False):
+    #     super(HOP2008, self).plot_lin(subplots=False)
 
     # def corr_mod(self):
     #     self.dissimilarity()
@@ -81,11 +75,11 @@ class HOP2008(Shape):
     #     g.axes.flat[0].axhline(1/3., ls='--', c='.2')
     #     self.show(pref='lin')
 
-    def avg_hop2008(self, plot=True):
-        self.dissimilarity()
+    def avg_hop2008(self, dis, plot=True):
+        # dis = self.dissimilarity()
 
         df = []
-        for layer, dis in self.dis.items():
+        for layer, dis in dis.items():
 
             df.extend(self._avg(dis, layer, 'px'))
             df.extend(self._avg(dis, layer, 'shape'))
@@ -133,82 +127,58 @@ class HOP2008(Shape):
         return df
 
     def dis_group_diff(self, plot=True):
+        group = self.dis_group(plot=False)
+        agg = group.pivot_table(index=['layer','n'], columns='kind',
+                             values='similarity').reset_index()
+        agg['diff'] = agg['shape'] - agg['px']
+        if self.bootstrap:
+            dfs = []
+            for layer in agg.layer.unique():
+                sel = agg[agg.layer==layer]['diff']
+                pct = stats.bootstrap_resample(sel, ci=None, func=np.mean)
+                d = OrderedDict([('kind', ['diff'] * len(pct)),
+                                 ('layer', [layer]*len(pct)),
+                                 ('preference', sel.mean()),
+                                 ('iter', range(len(pct))),
+                                 ('bootstrap', pct)])
+                dfs.append(pandas.DataFrame.from_dict(d))
+            df = pandas.concat(dfs)
 
-        self.dis_group(plot=False)
-
-        diff = []
-        f = lambda x, y: np.mean(x) - np.mean(y)
-        for layer in self.group.layer.unique():
-            sel = self.group[self.group.layer==layer]
-
-            agg = sel.groupby(['kind', 'n']).mean()
-            cis = stats.bootstrap_matrix(agg.loc['shape'],
-                                         agg.loc['px'],
-                                         func=f)
-            d = agg.loc['shape'].mean() - agg.loc['px'].mean()
-            diff.append([layer, d.values[0], cis[0], cis[1]])
-
-        self.diff = pandas.DataFrame(diff,
-                columns=['layer', 'preference for shape', 'ci_low', 'ci_high'])
-        # self.diff['kind'] = 'kind'
-
-        if plot:
-            self.plot_dis_group_diff()
-
+        else:
+            df = agg.groupby('layer').mean().reset_index()
+            df = df.rename(columns={'diff':'preference'})
+            df['kind'] = 'diff'
+            df['iter'] = 0
+            df['bootstrap'] = np.nan
+            del df['px']
+            del df['shape']
+        return df
 
     def plot_dis_group_diff(self, subplots=False):
         xlabel = '%s layer' % self.model_name
         self.diff = self.diff.rename(columns={'layer': xlabel})
         orange = sns.color_palette('Set2', 8)[1]
         self.plot_single_model(self.diff, subplots=subplots, colors=orange)
-
-        # g = sns.factorplot('layer', 'similarity', 'kind', data=diff,
-        #                 kind='point', aspect=aspect)
-        # diff['kind'] = 'kind'
-        # base.plot_ci(diff)
         sns.plt.axhline(0, ls='--', c='.15')
 
         sns.plt.ylim([-.2, .8])
         self.show('dis_group_diff')
 
-    def dis_group(self, plot=True, comp_diff=False):
-        df = self.avg_hop2008(plot=False)
+    def dis_group(self, plot=True):
+        dis = self.dissimilarity()
+        df = self.avg_hop2008(dis, plot=False)
+
         df = df[df.kind != 'other'][['layer', 'kind', 'n', 'dissimilarity']]
-        # df.pivot_table(index=['n', 'layer'], columns='feature',
-        #                      values='dissimilarity')
-        # diff = agg['shape'] - agg['px']
-        group = []
-        for layer, dis in self.dis.items():
-            sel = df[df.layer==layer]
-            inds = np.triu_indices(len(dis), k=1)
-            norm = np.max(dis[inds])
-            sel['similarity'] = 1 - sel.loc[:,'dissimilarity']/norm
-            group.append(sel)
+        df['similarity'] = 1 - df.dissimilarity
+        group = df.copy()
+        del group['dissimilarity']
 
-        self.group = pandas.concat(group, ignore_index=True)
-        del self.group['dissimilarity']
-
-        if plot:
-            self.plot_dis_group()
-        # self.diff.rename(columns={'dissimilarity':'similarity'}, inplace=True)
-
-        #
-        # return diff
-        # self.plot_lin_diff(diff, None)
-        # self.show(pref='diff')
-
-    # @base.style_plot
-    def plot_dis_group(self, subplots=False):#diff, values, aspect=1, **kwargs):
-        xlabel = '%s layer' % self.model_name
-        self.group = self.group.rename(columns={'layer': xlabel})
-        self.plot_single_model(self.group, subplots=subplots, )
-        sns.plt.ylim([0, .8])
-        self.show('dis_group')
-        # return g
+        if self.task == 'run' and plot:
+            self.plot_single(group, 'dis_group')
+        return group
 
     def gen_png(self):
         import subprocess
-
         for f in sorted(glob.glob('img/*.tif')):
             fname = os.path.basename(f)
             newname = fname.split('.')[0] + '.png'
@@ -232,152 +202,81 @@ class HOP2008(Shape):
             newname = os.path.join('img/with_bckg', newname)
             subprocess.call('composite -gravity center {} {} {}'.format(f, b, newname).split())
 
-if False:
-    m = models.Caffe(model=model, mode='gpu')
-    gn_output = m.test(ims, layers=layers)
-    print
+def remake_hop2008(**kwargs):
+    data = scipy.io.loadmat('hop2008_behav.mat')
+    data = np.array(list(data['behavioralDiff8'][0]))
+    # reorder such that all recta things are last, not first
+    a11 = data[:,:3,:3]
+    a12 = data[:,:3,3:]
+    a21 = data[:,3:,:3]
+    a22 = data[:,3:,3:]
+    b1 = np.concatenate([a22,a21], axis=2)
+    b2 = np.concatenate([a12,a11], axis=2)
+    b = np.concatenate([b1,b2], axis=1)
+    pickle.dump(b, open('dis_hop2008_behav.pkl', 'wb'))
 
-    # pickle.dump(gn_output, open('resps_GoogleNet_all.npy', 'wb'))
-    for sno, s in enumerate(ss[:2]):
-        print sno
-        dis = []
-        for layer, out in gn_output.items():
-            output = out.reshape((out.shape[0], -1))
+def ceil_rel(**kwargs):
+    data = pickle.load(open('dis_hop2008_behav.pkl', 'rb'))
+    inds = np.triu_indices(data.shape[1], k=1)
+    df = np.array([d[inds] for d in data])
+    zmn = np.mean(scipy.stats.zscore(df, axis=1), axis=0)
+    ceil = np.mean([np.corrcoef(subj,zmn)[0,1] for subj in df])
+    rng = np.arange(df.shape[0])
 
-            sel = np.s_[s[0]: s[1]]
-            gn_dis = m.dissimilarity(output[sel])
-            dis.append(gn_dis)
-
-            hmo_dis = m.dissimilarity(hmo_output[sel])
-            triu = np.triu_indices(hmo_dis.shape[0], 1)
-            corr = np.corrcoef(hmo_dis[triu], gn_dis[triu])
-            print layer, '%.2f' % corr[0,1]
-        print
-        dis = np.dstack(dis)
-        np.save('dis_%s_%d.npy' % (model, sno), dis)
-
-    for layer, output in gn_output.items():
-        if layer in ['fc6', 'fc7', 'fc8']:
-            np.save('resps_%s_%s.npy' % (model, layer), output)
-
-if False:
-    m = models.Caffe(model=model, mode='gpu')
-    preds = m.predict(ims[ss[0][0]:ss[0][1]], topn=5)
-    pickle.dump(preds, open('preds_%s.pkl' % model, 'wb'))
-
-    import pdb; pdb.set_trace()
-
-if False:
-    preds = pickle.load(open('preds_%s.pkl' % model, 'rb'))
-    preds_new = []
-    for stimno, pred in enumerate(preds):
-        for pno, p in enumerate(pred):
-            p['stimno'] = stimno
-            p['predno'] = pno
-            preds_new.append(p)
-    df = pandas.DataFrame(preds_new)
-    with open('preds_GoogleNet.csv', 'wb') as f:
-        f.writelines(df.to_csv())
-    import pdb; pdb.set_trace()
+    floor = []
+    for s, subj in enumerate(df):
+        mn = np.mean(df[rng!=s], axis=0)
+        floor.append(np.corrcoef(subj,mn)[0,1])
+    floor = np.mean(floor)
+    return floor, ceil
 
 
-    # g = sns.factorplot('model', 'accuracy', 'kind', data=lin,
-    #                     kind='bar')
-    # g.axes.flat[0].axhline(1/3., ls='--', c='.2')
-    # base.set_vertical_labels(g)
-    # base.show(pref='lin', **kwargs)
+class Compare(base.Compare):
+    def __init__(self, *args):
+        super(Compare, self).__init__(*args)
 
-# def lin_deep(model_name='', **kwargs):
-#     lin = base.lin_models(HOP2008, [model_name], **kwargs)
-#     g = sns.factorplot('model', 'accuracy', 'kind', data=lin,
-#                         kind='bar')
-#     g.axes.flat[0].axhline(1/3., ls='--', c='.2')
-#     base.show(pref='lin', **kwargs)
+    def dis_group(self):
+        return self.compare(pref='dis_group')
 
-# def corr_models(**kwargs):
-#     os.chdir(kwargs['dataset'])
-#     force = False
-#     try:
-#         df = base.load(pref='corr', suffix='CaffeNet', **kwargs)
-#     except:
-#         force = True
-
-#     if force or kwargs['force']:
-#         models1 = ['pixelwise', 'shape']
-#         # models2 = ['px', 'gaborjet',
-#         #           'hog', 'phog', 'phow']
-#         models2 = ['CaffeNet conv%d' % i for i in range(1,6)] + \
-#                   ['CaffeNet fc%d' % i for i in range(6,9)]
-#         df = base.corr_models(models1, models2, **kwargs)
-#         df = df.rename(columns={'model1': 'model', 'model2': 'CaffeNet layer'})
-#         base.save(df, pref='corr', suffix='CaffeNet', **kwargs)
-
-#     g = sns.factorplot('CaffeNet layer', 'correlation', 'model', data=df,
-#                         kind='point', palette='Set2')
-#     print df
-#     # chances = [1./len(np.unique(val)) for val in Stefania().dims.values()]
-#     # for ax, chance in zip(g.axes.flat, chances):
-#     #     ax.axhline(chance, ls='--', c='.2')
-#     base.show(pref='corr', **kwargs)
-
-def corr_all(**kwargs):
-    base.compare_all(HOP2008, kind='corr', subplots=True, **kwargs)
-
-def corr_all_layers(**kwargs):
-    base.DEEP = ['CaffeNet', 'VGG-19', 'GoogleNet']
-    colors = sns.color_palette('Set2')[:2]
-    base.corr_all_layers(HOP2008, kinds=['px', 'shape'], colors=colors, **kwargs)
-
-def lin_all(**kwargs):
-    base.compare_all(HOP2008, kind='lin', subplots=True, **kwargs)
-
-def group_all(**kwargs):
-    base.compare_all(HOP2008, kind='group', subplots=False, **kwargs)
-
-def group_all_layers(model_name=None, layers=None, **kwargs):
-    kinds = ['px', 'shape']
-    colors = sns.color_palette('Set2')[:2]
-    fig, axes = sns.plt.subplots(len(base.DEEP), sharey=True, figsize=(2.5,4))
-    for model, ax in zip(base.DEEP, axes):
-        m = HOP2008(model_name=model, layers='all', **kwargs)
-        m.dis_group(plot=False)
-        # corr = base.lin_models(HOP2008, [model], kind='group', **kwargs)
-        group = m.group.groupby(['kind', 'layer']).mean().reset_index()
-        for kind, color in zip(kinds, colors):
-            sel = group[group.kind==kind]
-            ax.plot(range(len(sel)), np.array(sel.similarity), lw=3, color=color)
-            ax.set_xlim([0, len(sel)-1])
-        ax.set_xticklabels([])
-        ax.set_title(model)
-        sns.despine()
-
-    sns.plt.ylim([0, 1])
-    ax.set_yticks([0,.5,1])
-    ax.set_yticklabels(['0','.5','1'])
-    base.show(pref='group', suffix='all_layers', **kwargs)
-
-def group_diff(**kwargs):
-    base.compare_all(HOP2008, kind='group_diff', subplots=False, **kwargs)
+    def dis_group_diff(self):
+        return self.compare(pref='dis_group_diff', ylim=[-.4,.4])
 
 
-    # green = sns.color_palette('Set2', 8)[0]
-    # base.corr_all('px', deep, dims=dims, color=green, **kwargs)
+def report(**kwargs):
+    html = kwargs['html']
 
-    # orange = sns.color_palette('Set2', 8)[1]
-    # base.corr_all('shape', deep, dims=dims, color=orange, **kwargs)
+    html.writeh('HOP2008', h='h1')
 
-# def lin_all(**kwargs):
-#     shallow = ['px', 'gaborjet', 'hog', 'phog', 'phow']
-#     deep = ['CaffeNet', 'Places', 'HMO', 'GoogleNet']
-#     models = shallow + deep
-#     lin = base.lin_models(HOP2008, models, **kwargs)
-#     green = sns.color_palette('Set2', 8)[0]
-#     base.plot_all(lin[lin.kind=='pixelwise'], 'pixelwise', color=green,
-#                   values='accuracy', pref='lin', **kwargs)
+    html.writeh('Clustering', h='h2')
 
-#     orange = sns.color_palette('Set2', 8)[1]
-#     base.plot_all(lin[lin.kind=='shape'], 'shape', color=orange,
-#                   values='accuracy', pref='lin', **kwargs)
+    kwargs['layers'] = 'all'
+    kwargs['task'] = 'run'
+    kwargs['func'] = 'dis_group'
+    myexp = HOP2008(**kwargs)
+    for depth, model_name in myexp.models:
+        if depth != 'shallow':
+            myexp.set_model(model_name)
+            myexp.dis_group()
 
-def run(**kwargs):
-    getattr(HOP2008(**kwargs), kwargs['func'])()
+    kwargs['layers'] = 'output'
+    kwargs['task'] = 'compare'
+    kwargs['func'] = 'dis_group_diff'
+    myexp = HOP2008(**kwargs)
+    Compare(myexp).dis_group_diff()
+
+    html.writeh('Correlation', h='h2')
+
+    kwargs['layers'] = 'all'
+    kwargs['task'] = 'run'
+    kwargs['func'] = 'corr'
+    myexp = HOP2008(**kwargs)
+    for depth, model_name in myexp.models:
+        if depth != 'shallow':
+            myexp.set_model(model_name)
+            myexp.corr()
+
+    kwargs['layers'] = 'output'
+    kwargs['task'] = 'compare'
+    kwargs['func'] = 'corr'
+    myexp = HOP2008(**kwargs)
+    Compare(myexp).corr()

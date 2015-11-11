@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<head>
+    <title>Report</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="css/jquery.tocify.css" />    
+</head>
+<body>
+    <div id="container">
+        <div id="toc"></div>
+        <h1>Snodgrass</h1>
+<h2>Accuracy</h2>
+<h3>Behavioral</h3>
+<figure>
+    <img src="snodgrass/plot_acc_snodgrass_behav.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_behav.svg</figcaption>
+</figure>
+<h3>Models</h3>
+<figure>
+    <img src="snodgrass/plot_acc_snodgrass_sil_all.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_sil_all.svg</figcaption>
+</figure>
+<h2>Correlation</h2>
+<figure>
+    <img src="snodgrass/plot_corr_sil_snodgrass_sil_caffenet_all.svg" />
+    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>   147</td> 
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>   145</td> 
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
+</tr>
+<tr>
+  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.02994</td>
+</tr>
+<tr>
+  <th>Time:</th>              <td>15:35:17</td>     <th>  Log-Likelihood:    </th> <td> -90.079</td>
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -92.859</td>
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th>  <td>0.01836</td>
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -1.5788</td> <td>    0.437</td> <td>   -3.612</td> <td> 0.000</td> <td>   -2.436    -0.722</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    1.1854</td> <td>    0.528</td> <td>    2.244</td> <td> 0.025</td> <td>    0.150     2.221</td>
+</tr>
+</table></figcaption>
+</figure>
+<figure>
+    <img src="snodgrass/plot_corr_sil_snodgrass_sil_caffenet_exact.svg" />
+    <figcaption><strong>Figure.</strong> exact<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>    61</td> 
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
+</tr>
+<tr>
+  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.01192</td>
+</tr>
+<tr>
+  <th>Time:</th>              <td>15:35:20</td>     <th>  Log-Likelihood:    </th> <td> -40.399</td>
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -40.886</td>
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th>  <td>0.3235</td> 
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -0.8273</td> <td>    0.489</td> <td>   -1.691</td> <td> 0.091</td> <td>   -1.786     0.132</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    0.6601</td> <td>    0.675</td> <td>    0.978</td> <td> 0.328</td> <td>   -0.663     1.983</td>
+</tr>
+</table></figcaption>
+</figure>
+<figure>
+    <img src="snodgrass/plot_corr_sil_snodgrass_sil_vgg-19_all.svg" />
+    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>   147</td> 
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>   145</td> 
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
+</tr>
+<tr>
+  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.03663</td>
+</tr>
+<tr>
+  <th>Time:</th>              <td>15:35:23</td>     <th>  Log-Likelihood:    </th> <td> -88.745</td>
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -92.120</td>
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>0.009383</td>
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -1.7224</td> <td>    0.454</td> <td>   -3.790</td> <td> 0.000</td> <td>   -2.613    -0.832</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    1.3317</td> <td>    0.545</td> <td>    2.444</td> <td> 0.015</td> <td>    0.264     2.399</td>
+</tr>
+</table></figcaption>
+</figure>
+<figure>
+    <img src="snodgrass/plot_corr_sil_snodgrass_sil_vgg-19_exact.svg" />
+    <figcaption><strong>Figure.</strong> exact<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>    61</td> 
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
+</tr>
+<tr>
+  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th> <td>0.007257</td>
+</tr>
+<tr>
+  <th>Time:</th>              <td>15:35:26</td>     <th>  Log-Likelihood:    </th> <td> -38.988</td>
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -39.273</td>
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th>  <td>0.4502</td> 
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -0.9549</td> <td>    0.503</td> <td>   -1.899</td> <td> 0.058</td> <td>   -1.940     0.031</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    0.5184</td> <td>    0.692</td> <td>    0.749</td> <td> 0.454</td> <td>   -0.838     1.875</td>
+</tr>
+</table></figcaption>
+</figure>
+<figure>
+    <img src="snodgrass/plot_corr_sil_snodgrass_sil_googlenet_all.svg" />
+    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>   147</td>  
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>   145</td>  
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td>  
+</tr>
+<tr>
+  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.09975</td> 
+</tr>
+<tr>
+  <th>Time:</th>              <td>15:35:29</td>     <th>  Log-Likelihood:    </th> <td> -88.366</td> 
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -98.157</td> 
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>9.635e-06</td>
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -2.1656</td> <td>    0.506</td> <td>   -4.281</td> <td> 0.000</td> <td>   -3.157    -1.174</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    2.3128</td> <td>    0.594</td> <td>    3.894</td> <td> 0.000</td> <td>    1.149     3.477</td>
+</tr>
+</table></figcaption>
+</figure>
+<figure>
+    <img src="snodgrass/plot_corr_sil_snodgrass_sil_googlenet_exact.svg" />
+    <figcaption><strong>Figure.</strong> exact<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>    61</td> 
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
+</tr>
+<tr>
+  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.1047</td> 
+</tr>
+<tr>
+  <th>Time:</th>              <td>15:35:32</td>     <th>  Log-Likelihood:    </th> <td> -37.258</td>
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -41.616</td>
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>0.003154</td>
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -1.5728</td> <td>    0.564</td> <td>   -2.791</td> <td> 0.005</td> <td>   -2.677    -0.468</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    2.0677</td> <td>    0.748</td> <td>    2.763</td> <td> 0.006</td> <td>    0.601     3.535</td>
+</tr>
+</table></figcaption>
+</figure>
+<h1>HOP2008</h1>
+<h2>Clustering</h2>
+<figure>
+    <img src="hop2008/plot_dis_group_hop2008_hmax99.svg" />
+    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_hmax99.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_dis_group_hop2008_hmax_hmin.svg" />
+    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_hmax_hmin.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_dis_group_hop2008_hmax_pnas.svg" />
+    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_hmax_pnas.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_dis_group_hop2008_caffenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_caffenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_dis_group_hop2008_vgg-19.svg" />
+    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_vgg-19.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_dis_group_hop2008_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_googlenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_dis_group_diff_hop2008_all_diff.svg" />
+    <figcaption><strong>Figure.</strong> plot_dis_group_diff_hop2008_all_diff.svg</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>shallow</td>
+      <td>hmax</td>
+      <td>-0.124</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>shallow</td>
+      <td>deep</td>
+      <td>-0.271</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>deep</td>
+      <td>-0.147</td>
+      <td>0.001</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h2>Correlation</h2>
+<figure>
+    <img src="hop2008/plot_corr_hop2008_hmax99.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax99.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_corr_hop2008_hmax_hmin.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax_hmin.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_corr_hop2008_hmax_pnas.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax_pnas.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_corr_hop2008_caffenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_caffenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_corr_hop2008_vgg-19.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_vgg-19.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_corr_hop2008_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_googlenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="hop2008/plot_corr_hop2008_all_px.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_all_px.svg</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.001</td>
+      <td>0.491</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>-0.457</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>-0.458</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<figure>
+    <img src="hop2008/plot_corr_hop2008_all_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_all_shape.svg</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.427</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.308</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>-0.119</td>
+      <td>0.055</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h1>Fonts</h1>
+<h2>Clustering</h2>
+<figure>
+    <img src="fonts/plot_clust_fonts_hmax99.svg" />
+    <figcaption><strong>Figure.</strong> plot_clust_fonts_hmax99.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_clust_fonts_hmax_hmin.svg" />
+    <figcaption><strong>Figure.</strong> plot_clust_fonts_hmax_hmin.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_clust_fonts_hmax_pnas.svg" />
+    <figcaption><strong>Figure.</strong> plot_clust_fonts_hmax_pnas.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_clust_fonts_caffenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_clust_fonts_caffenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_clust_fonts_vgg-19.svg" />
+    <figcaption><strong>Figure.</strong> plot_clust_fonts_vgg-19.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_clust_fonts_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_clust_fonts_googlenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_clust_fonts_all_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_clust_fonts_all_shape.svg</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.128</td>
+      <td>0.100</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.348</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>0.219</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h2>Correlation</h2>
+<figure>
+    <img src="fonts/plot_corr_fonts_hmax99.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax99.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_corr_fonts_hmax_hmin.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax_hmin.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_corr_fonts_hmax_pnas.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax_pnas.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_corr_fonts_caffenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_caffenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_corr_fonts_vgg-19.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_vgg-19.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_corr_fonts_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_googlenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="fonts/plot_corr_fonts_all_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_all_shape.svg</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.249</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.381</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>0.132</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h1>Geons</h1>
+<h2>Accuracy</h2>
+<figure>
+    <img src="geons/plot_acc_geons_3d_hmax99.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax99.svg</figcaption>
+</figure>
+<figure>
+    <img src="geons/plot_acc_geons_3d_hmax_hmin.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax_hmin.svg</figcaption>
+</figure>
+<figure>
+    <img src="geons/plot_acc_geons_3d_hmax_pnas.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax_pnas.svg</figcaption>
+</figure>
+<figure>
+    <img src="geons/plot_acc_geons_3d_caffenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_caffenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="geons/plot_acc_geons_3d_vgg-19.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_vgg-19.svg</figcaption>
+</figure>
+<figure>
+    <img src="geons/plot_acc_geons_3d_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_googlenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="geons/plot_acc_geons_3d_all_nap.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_all_nap.svg</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.140</td>
+      <td>0.024</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.342</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>0.202</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h1>Stefania</h1>
+<h2>Correlation</h2>
+<figure>
+    <img src="stefania/plot_corr_stefania_hmax99.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax99.svg</figcaption>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_hmax_hmin.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax_hmin.svg</figcaption>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_hmax_pnas.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax_pnas.svg</figcaption>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_caffenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_caffenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_vgg-19.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_vgg-19.svg</figcaption>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_googlenet.svg</figcaption>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_all_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_all_shape.svg</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.325</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.053</td>
+      <td>0.008</td>
+      <td>**</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>-0.273</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_all_category.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_all_category.svg</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.239</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.295</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>0.056</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+
+    </div>
+    
+    <!-- Faster page loading by leaving js last -->
+    <script src="js/jquery-1.10.1.min.js"></script>
+    <script src="js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.tocify.min.js"></script>
+    <script type="text/javascript">
+        //Executes your code when the DOM is ready.  Acts the same as $(document).ready().
+        $(function() {
+            //Calls the tocify method on your HTML div.
+            $("#toc").tocify();
+        });
+    </script>
+</body>
+</html>

@@ -8,13 +8,24 @@ Theories of object recognition agree that shape is of primordial importance, but
 
 # Quick Start
 
+## Reproduce results reported in the paper
+
+`python run.py report --bootstrap`
+
+Note that this will take a **very long time** (half a day or so). It will be substantially faster without bootstrapping:
+
+`python run.py report`
+
+## Run various tasks
+
 `python run.py <dataset> <run / compare> <task> <options>`
 
 Available datasets:
 - snodgrass
 - hop2008
+- fonts
 - geons
-- stafania
+- stefania
 
 For available options, see `run.py`. For tasks, see functions in `run.py` of an individual dataset. For example,
 
@@ -22,7 +33,7 @@ For available options, see `run.py`. For tasks, see functions in `run.py` of an 
 
 # Dependencies
 
-- psychopy_ext (use the latest code from https://github.com/qbilius/psychopy_ext)
+- psychopy_ext 0.6 (`pip install psychopy_ext`; not yet available)
 - Caffe (http://caffe.berkeleyvision.org/)
 
 # License

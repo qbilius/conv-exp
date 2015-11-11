@@ -10,56 +10,64 @@ sys.path.insert(0, '../../psychopy_ext')
 from psychopy_ext import models, stats
 
 import base
-from base import Base
 
-base.DEEP = ['CaffeNet', 'VGG-19', 'GoogleNet']
 
-class Geons(Base):
+class Geons(base.Base):
 
     def __init__(self, *args, **kwargs):
-        super(Geons, self).__init__(*args, **kwargs)
         self.kwargs = kwargs
+        self.dims = OrderedDict([('nap', [0,1])])
+        self.colors = OrderedDict([('nap', base.COLORS[1])])
+        self.skip_hmo = True
+        super(Geons, self).__init__(*args, **kwargs)
 
-    def get_dims(self):
-        with open('dimensions.csv', 'rb') as f:
-            lines = f.readlines()
-        dims = dict([l.strip('\n').split(',') for l in lines])
-        return dims
-
-    @base._check_force('nap')
+    @base.get_data('nap')
     def dissimilarity(self):
-        self.classify()
+        resps = self.classify()
         df = []
-        dims = self.get_dims()
-        for layer, resps in self.resps.items():
+        dims = get_dims()
+        for layer, resps in resps.items():
             for g,i in enumerate(range(0, len(resps), 3)):
-                dis = super(Base, self).dissimilarity(resps[i:i+3],
-                                                      kind='corr')
+                dis = models.dissimilarity(resps[i:i+3],
+                                                      kind='euclidean')
                 n = os.path.basename(self.ims[i])[:2]
                 df.append([layer, g, int(n), dims[n], 'non-accidental', dis[1,0]])
                 df.append([layer, g, int(n), dims[n], 'metric', dis[1,2]])
 
-        self.nap = pandas.DataFrame(df,
+        nap = pandas.DataFrame(df,
                             columns=['layer', 'geon', 'fno', 'dimension', 'kind', 'dist'])
-        self.save('nap')
+        self.save(nap, 'nap')
+        return nap
 
     def accuracy(self, plot=True):
-        self.dissimilarity()
-        dff = self.nap.pivot_table(values='dist', index=['layer', 'geon', 'fno', 'dimension'], columns='kind')
+        nap = self.dissimilarity()
 
-        dff = pandas.DataFrame(dff.apply(np.argmax, axis=1), columns=['accuracy'])
-        dff = dff.reset_index()
-        dff.loc[dff.accuracy=='metric', 'accuracy'] = False
-        dff.loc[dff.accuracy=='non-accidental', 'accuracy'] = True
-        dff.accuracy = dff.accuracy.astype(bool)
-        self.acc = dff
-        # import pdb; pdb.set_trace()
-        # self.acc = stats.aggregate(dff, values='accuracy', rows='layer')
-        # acc = stats.accuracy(dff, values='accuracy', rows='layer',
-        #                 correct='non-accidental', incorrect='metric')
-        # self.acc = pandas.DataFrame(acc).reset_index()
-        if plot:
-            self.plot_acc()
+        acc = nap.pivot_table(values='dist', index=['layer', 'geon', 'fno', 'dimension'], columns='kind').reset_index()
+        acc['accuracy'] = acc['non-accidental'] > acc['metric']
+
+        if self.bootstrap:
+            dfs = []
+            for layer in acc.layer.unique():
+                sel = acc[acc.layer==layer]['accuracy']
+                pct = stats.bootstrap_resample(sel, ci=None, func=np.mean)
+                d = OrderedDict([('kind', ['nap'] * len(pct)),
+                                 ('layer', [layer]*len(pct)),
+                                 ('accuracy', sel.mean()),
+                                 ('iter', range(len(pct))),
+                                 ('bootstrap', pct)])
+                dfs.append(pandas.DataFrame.from_dict(d))
+            df = pandas.concat(dfs)
+
+        else:
+            df = acc.groupby('layer').mean().reset_index()
+            df['kind'] = 'nap'
+            df['iter'] = 0
+            df['bootstrap'] = np.nan
+
+        if self.task == 'run' and plot:
+            self.plot_single(df, 'acc')
+        return df
+
 
     def plot_acc(self):
         xlabel = '%s layer' % self.model_name
@@ -119,17 +127,59 @@ class Geons(Base):
         with open('results_%s.html' % pref,'wb') as f:
             f.write('\n'.join(h.content))
 
+def get_dims():
+    with open('geons/data/dimensions.csv', 'rb') as f:
+        lines = f.readlines()
+    dims = dict([l.strip('\n').split(',') for l in lines])
+    return dims
 
-# def compare_lin(**kwargs):
-#     lin = base.compare(Geons, 'accuracy', 'acc', **kwargs)
-#     g = sns.factorplot('model', 'accuracy', data=lin, kind='bar',
-#                       color='indianred')
-#     g.axes.flat[0].axhline(1/2., ls='--', c='.2')
-#     g.axes.flat[0].set_ylim([0,1])
-#     base.show(pref='acc', **kwargs)
+def remake_amir2012(**kwargs):
+    data = scipy.io.loadmat('amir2012.mat')
+    meta = data['Results'][0,0]
+    acc = meta['CRmat']
+    ims = data['ImageNames']
+    df = []
+    variants = {0: 'metric', 1: 'non-accidental'}
+    vobs = {0: 'variant', 1: 'base'}
+    versions = {0: '3d', 1: '2d'}
+    dims = get_dims()
+
+    df = []
+    for (imno, varno, run, subjid, vob, verno), value in np.ndenumerate(acc):
+        impath = ims[imno,0,0]
+
+        if len(impath) != 0:
+            cond = int(impath[0].split('/')[-1].split('os')[0])
+            dim = dims['%02d' % cond]
+            df.append([meta['Subjects'][0,subjid][0],
+                       run,
+                       variants[varno],
+                       versions[verno],
+                       vobs[vob],
+                       cond,
+                       dim,
+                       meta['RTmat'][imno, varno, run, subjid, vob, verno],
+                       value
+                        ])
+    df = pandas.DataFrame(df, columns=['subjid', 'run', 'variant', 'version',
+                                    'on_top', 'cond', 'dimension', 'rt', 'acc'])
+    df.to_csv('amir_2012.csv')
+
+def behav_amir(**kwargs):
+    df = pandas.read_csv('amir_2012.csv')
+    df = df[df.version=='3d']
+    df = df[~df.subjid.isin(['KA11','JJ'])]
+    df = df[df.run!=15]
+    df = df[~df.cond.isin([31,34])]
+    df = df[df.acc==100]
+    agg = stats.aggregate(df, groupby=['dimension', 'variant',
+                          'version', 'subjid'])
+
+    sns.factorplot(x='version',y='rt',hue='variant',col='dimension',
+                    data=agg,kind='bar',col_wrap=3)
+    sns.plt.show()
 
 def acc_all(model_name='', layers=None, **kwargs):
-
     df = []
     deep = [d for d in base.DEEP if d != 'HMO']
     for model in base.SHALLOW + deep:
@@ -141,9 +191,6 @@ def acc_all(model_name='', layers=None, **kwargs):
             layer = None
         m = Geons(model_name=model_name, layers=layer, **kwargs)
         m.accuracy(plot=False)
-        # if layer is not None:
-        #     m.acc = m.acc[m.acc.layer == layer]
-
         for rowno, acc in m.acc.iterrows():
             df.append([model_name] + acc.tolist()[1:])
 
@@ -160,24 +207,6 @@ def acc_all(model_name='', layers=None, **kwargs):
     orange = sns.color_palette('Set2', 8)[1]
     base.plot_all(df, dims, values='accuracy', colors=[orange],
                   pref='acc', ylim=[0,1], **kwargs)
-
-    # base.save(df, pref='corr', suffix='CaffeNet', **kwargs)
-    # gray = sns.color_palette('Set2', 8)[-1]
-    # orange = sns.color_palette('Set2', 8)[1]
-    # palette = [gray] * len(shallow) + [orange] * len(deep)
-    # g = sns.factorplot('models', 'accuracy', data=df,
-    #                     kind='bar', palette=palette)
-
-
-    # base.set_vertical_labels(g)
-
-    # # chances = [1./len(np.unique(val)) for val in Stefania().dims.values()]
-    # # for ax, chance in zip(g.axes.flat, chances):
-    # sns.plt.axhline(.5, ls='--', c='.2')
-
-
-
-    # base.show(pref='corr', **kwargs)
 
 def acc_all_layers(model_name=None, layers='all', **kwargs):
     colors = sns.color_palette('Set2')[1]
@@ -199,15 +228,45 @@ def acc_all_layers(model_name=None, layers='all', **kwargs):
     ax.set_yticklabels(['0','.5','1'])
     base.show(pref='acc', suffix='all_layers', **kwargs)
 
-def misclass(model_name=None, layers='all', **kwargs):
-    colors = sns.color_palette('Set2')[1]
-
-    fig, axes = sns.plt.subplots(len(base.DEEP), sharey=True, figsize=(2.5,4))
-    for model, ax in zip(base.DEEP, axes):
-        m = Geons(model_name=model, layers=None, **kwargs)
-        m.accuracy(plot=False)
-        print 'misclassified geons by %s:' % model
-        print m.acc[m.acc.accuracy==False][['fno','dimension']]
-
 def run(**kwargs):
     getattr(Geons(**kwargs), kwargs['func'])()
+
+
+class Compare(base.Compare):
+    def __init__(self, *args):
+        super(Compare, self).__init__(*args)
+
+    def accuracy(self):
+        return self.compare(pref='acc')
+
+    def misclass(self, model_name=None, layers='all', **kwargs):
+        colors = sns.color_palette('Set2')[1]
+
+        fig, axes = sns.plt.subplots(len(base.DEEP), sharey=True, figsize=(2.5,4))
+        for model, ax in zip(base.DEEP, axes):
+            m = Geons(model_name=model, layers=None, **kwargs)
+            m.accuracy(plot=False)
+            print 'misclassified geons by %s:' % model
+            print m.acc[m.acc.accuracy==False][['fno','dimension']]
+
+
+def report(**kwargs):
+    html = kwargs['html']
+    kwargs['subset'] = '3d'
+    html.writeh('Geons', h='h1')
+
+    html.writeh('Accuracy', h='h2')
+
+    kwargs['layers'] = 'all'
+    kwargs['task'] = 'run'
+    kwargs['func'] = 'accuracy'
+    myexp = Geons(**kwargs)
+    for depth, model_name in myexp.models:
+        myexp.set_model(model_name)
+        if depth != 'shallow':
+            myexp.accuracy()
+
+    kwargs['layers'] = 'output'
+    kwargs['task'] = 'compare'
+    myexp = Geons(**kwargs)
+    Compare(myexp).accuracy()

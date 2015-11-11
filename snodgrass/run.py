@@ -1,4 +1,5 @@
 import os, sys, glob
+from collections import OrderedDict
 
 import numpy as np
 import pandas
@@ -7,31 +8,135 @@ import seaborn as sns
 import statsmodels.formula.api as smf
 
 sys.path.insert(0, '../../psychopy_ext')
-from psychopy_ext import stats
+from psychopy_ext import models, stats, plot
 
-import base
-from base import Base
-base.DEEP = ['CaffeNet', 'VGG-19', 'GoogleNet']
 ORDER = ['color', 'gray', 'sil']
+import base
 
-class Snodgrass(Base):
+class Snodgrass(base.Base):
 
     def __init__(self, *args, **kwargs):
         super(Snodgrass, self).__init__(*args, **kwargs)
         self.kwargs = kwargs
+        self.dims = OrderedDict([('shape', np.repeat(range(6),6))])
+        self.colors = OrderedDict([('shape', base.COLORS[1])])
 
-    def accuracy(self):
-        # dataset_labels = self.synsets_from_csv(self.dataset + '.csv')
-        # self.predict()
-        # df = self.pred_acc(dataset_labels)
+    def pred_acc(self, compute_acc=True):
+        if compute_acc:
+            preds = self.predict()
+        imagenet_labels = self.synsets_from_txt('snodgrass/synset_words.txt')
+        dataset_labels = self.synsets_from_csv(os.path.join('snodgrass', self.exp + '.csv'))
+        all_hyps = lambda s:s.hyponyms()
+
+        df = pandas.DataFrame.from_dict(dataset_labels)
+        df['imgid'] = ''
+        df['imdnames'] = ''
+        df['kind'] = 'unknown'
+        df['accuracy'] = np.nan
+        for no, dtlab in enumerate(dataset_labels):
+            hypos = set([i for i in dtlab['synset'].closure(all_hyps)])
+            hypos = hypos.union([dtlab['synset']])
+            for imglab in imagenet_labels:
+                if imglab['synset'] in hypos:
+                    df.loc[no, 'imgid'] = imglab['id']
+                    df.loc[no, 'imgnames'] = imglab['names']
+                    if imglab['id'] == df.loc[no, 'id']:
+                        df.loc[no, 'kind'] = 'exact'
+                    else:
+                        df.loc[no, 'kind'] = 'superordinate'
+                    break
+            if compute_acc:
+                for p in preds[no]:
+                    psyn = wn._synset_from_pos_and_offset(p['synset'][0],
+                                                          int(p['synset'][1:]))
+                    # check if the prediction is exact
+                    # or at least more specific than the correct resp
+                    if psyn in hypos:
+                        df.loc[no, 'accuracy'] = True
+                        break
+                else:
+                    if df.loc[no, 'kind'] != 'unknown':
+                        df.loc[no, 'accuracy'] = False
+        return df
+
+    def acc_single(self):
         df = self.pred_acc()
-        # print df[['id','imgid','kind','accuracy']]
-        # sys.exit()
         acc_exact = df[df.kind=='exact'].accuracy.mean()
-        # acc_exact = acc.sum() / float(df.accuracy.count())
         print 'Exact match: {:.2f}'.format(acc_exact)
         print 'Exact match or more specific: {:.2f}'.format(df.accuracy.mean())
         return df
+
+    def accuracy(self):
+        dfs = []
+        for subset in ORDER:
+            self.set_subset(subset)
+            df = self.acc_single()
+            df['model'] = self.model_name
+            df['dataset'] = subset
+            dfs.append(df)
+        df = pandas.concat(dfs, ignore_index=True)
+        return df
+
+    def corr(self):
+        self.set_subset('sil')
+        df = self.acc_single()
+        df['dataset'] = 'sil'
+        human = pandas.read_csv('snodgrass/sil_human_acc.csv',header=None)
+        df['human_accuracy'] = np.nan
+        n = len(df.dataset.unique())
+        df.loc[:,'human_accuracy'] = human[0].tolist() * n
+        df['human_accuracy'] /= 100.
+        df = df[df.kind!='unknown']
+        df.accuracy = df.accuracy.astype(int)
+        sns.set_palette(sns.color_palette('Set2')[1:])
+
+        self._corr(df, 'all')
+        self._corr(df[df.kind=='exact'], 'exact')
+
+    def _corr(self, sel, suffix):
+        formula = 'accuracy ~ human_accuracy'
+        logreg = smf.logit(formula=formula, data=sel).fit()
+        summ = logreg.summary()
+        if self.html is None:
+            print summ
+        else:
+            summ = summ.as_html().replace('class="simpletable"',
+                                          'class="simpletable table"')
+
+        sel = sel.rename(columns={'human_accuracy': 'human accuracy'})
+
+        sns.lmplot('human accuracy', 'accuracy', data=sel,
+                    y_jitter=.05, logistic=True, truncate=True)
+
+        bins = np.digitize(sel['human accuracy'], np.arange(0,1,.1))
+        bins[bins==11] = 10
+        count = sel.accuracy.groupby(bins).count()
+        mean = sel.accuracy.groupby(bins).mean()
+        sns.plt.scatter(.1*mean.index-.05, mean, s=10*count, c='.15',
+                        linewidths=0, alpha=.8)
+        sns.plt.title(models.NICE_NAMES[self.model_name])
+        sns.plt.xlim([-.1, 1.1])
+        sns.plt.ylim([-.1, 1.1])
+
+        self.show(pref='corr_sil', suffix=self.model_name + '_' + suffix,
+                  caption=suffix + summ)
+
+    def behav(self):
+        self.model_name = 'behav'
+        df = [('color', .903, .169),
+              ('gray', .892, .172),
+            #   ('line drawing', .882, .171),
+              ('silhouette', .6470, .3976)]
+        df = pandas.DataFrame(df, columns=['dataset', 'accuracy', 'stdev'])
+        n = 260
+        ci = df.stdev * 1.96 / np.sqrt(n)
+        df['ci_low'] = df.accuracy - ci
+        df['ci_high'] = df.accuracy + ci
+
+        sns.factorplot('dataset', 'accuracy', data=df,
+                        kind='bar', color=self.colors['shape'])
+        plot.plot_ci(df, what=['Rectangle'])
+        self.show(pref='acc')
 
     def create_stim(self):
         suffix = self.order
@@ -76,97 +181,58 @@ class Snodgrass(Base):
             gen2nd.gen(mask=im, savename=newfname)
 
 
-def acc(model_name, subset=None, plot=True, **kwargs):
-    dff = []
+class Compare(base.Compare):
+    def __init__(self, *args):
+        super(Compare, self).__init__(*args)
 
-    for subset in ORDER:
-        m = Snodgrass(model_name=model_name, subset=subset, **kwargs)
-        df = m.accuracy()
-        df['model'] = model_name
-        df['dataset'] = subset
-        dff.append(df)
-        # df_exact = df[df.id==df.imgid]  # has that exact synset
-        # dff_exact.append(df_exact)
-        # acc = df_exact.acc.sum() / float(df.acc.count())
-        # acc_exact = df_exact.acc.mean()
-        # acc_all = df.acc.mean()
+    def accuracy(self):
+        df = self._acc()
+        df = df[df.kind!='unknown']
+        df.dataset[df.dataset=='sil'] = 'silhouette'
 
-        # dff.append([dataset, 'exact', acc])
-        # dff.append([dataset, 'exact or more specific', acc_all])
-        # dff_exact.append([dataset, acc_exact])
+        sns.factorplot('dataset', 'accuracy', 'model', data=df,
+                        kind='bar', color=self.myexp.colors['shape'])
+        sns.plt.ylim([0,1])
+        self.show(pref='acc')
+        return df
 
-    dff = pandas.concat(dff, ignore_index=True)
+    def _acc(self):
+        dfs = []
+        for depth, model_name in self.myexp.models:
+            if depth == 'deep':
+                self.myexp.set_model(model_name)
+                df = self.myexp.accuracy()
+                dfs.append(df)
+        df = pandas.concat(dfs, ignore_index=True)
+        return df
 
-    human = pandas.read_csv('sil_human_acc.csv',header=None)[0].tolist()
-    dff['human_accuracy'] = np.nan
-    n = len(dff.dataset.unique())
-    dff.loc[:,'human_accuracy'] = human * n
 
-    # print '=== Easy for humans, hard for model ==='
-    # print dff[dff.dataset=='color'][dff.accuracy==False][dff.human_accuracy>50][['names', 'imgnames']]
-    # return dff
-    if plot:
-        dff = dff[dff.kind!='unknown']
-        print '# of exact synsets:', dff[dff.kind=='exact'].accuracy.count()/n
-        print '# of exact or more specific synsets:', dff.accuracy.count()/n
-        _acc(dff, 'all', **kwargs)
-        _acc(dff[dff.kind=='exact'], 'exact', **kwargs)
+def report(**kwargs):
+    html = kwargs['html']
+    html.writeh('Snodgrass', h='h1')
 
-    return dff
+    html.writeh('Accuracy', h='h2')
 
-def _acc(dff, suffix, **kwargs):
-    sel = dff[dff.dataset=='sil']
-    sel.accuracy = sel.accuracy.astype(int)
-    formula = 'accuracy ~ human_accuracy'
-    logreg = smf.logit(formula=formula, data=sel).fit()
-    print logreg.summary()
+    html.writeh('Behavioral', h='h3')
+    kwargs['layers'] = 'probs'
+    kwargs['task'] = 'run'
+    kwargs['func'] = 'behav'
+    myexp = Snodgrass(**kwargs)
+    myexp.behav()
 
-    sel = sel.rename(columns={'human_accuracy': 'human accuracy'})
+    html.writeh('Models', h='h3')
+    kwargs['layers'] = 'preds'
+    kwargs['task'] = 'compare'
+    kwargs['func'] = 'accuracy'
+    myexp = Snodgrass(**kwargs)
+    df = Compare(myexp).accuracy()
 
-    sns.lmplot('human accuracy', 'accuracy', data=sel,
-                y_jitter=.05, logistic=True)
-
-    bins = np.digitize(sel['human accuracy'], range(0,100,10))
-    bins[bins==11] = 10
-    count = sel.accuracy.groupby(bins).count()
-    mean = sel.accuracy.groupby(bins).mean()
-    sns.plt.scatter(10*mean.index-5, mean, s=10*count, c='.15',#'#66c2a5',
-     linewidths=0, alpha=.8)
-    base.show(pref='log', suffix='sil_'+suffix, **kwargs)
-
-    orange = sns.color_palette('Set2')[1]
-    sns.factorplot('dataset', 'accuracy', data=dff,
-                    kind='bar', color=orange)
-    sns.plt.ylim([0,1])
-    base.show(pref='acc', suffix=suffix, **kwargs)
-
-def acc_all(model_name=None, **kwargs):
-    df = pandas.concat([acc(model, plot=False, **kwargs) for model in base.DEEP], ignore_index=True)
-    # df.dataset[df.dataset=='line'] = 'line drawing'
-    df.dataset[df.dataset=='sil'] = 'silhouette'
-
-    orange = sns.color_palette('Set2')[1]
-    sns.factorplot('dataset', 'accuracy', 'model', data=df,
-                    kind='bar', color=orange)
-    sns.plt.ylim([0,1])
-    base.show(pref='acc_all', suffix='all', **kwargs)
-
-def behav(**kwargs):
-    df = [('color', .903, .169),
-          ('gray', .892, .172),
-        #   ('line drawing', .882, .171),
-          ('silhouette', .6470, .3976)]
-    df = pandas.DataFrame(df, columns=['dataset', 'accuracy', 'stdev'])
-    n = 260
-    ci = df.stdev * 1.96 / np.sqrt(n)
-    df['ci_low'] = df.accuracy - ci
-    df['ci_high'] = df.accuracy + ci
-
-    orange = sns.color_palette('Set2')[1]
-    sns.factorplot('dataset', 'accuracy', data=df,
-                    kind='bar', color=orange)
-    base.plot_ci(df, what=['Rectangle'])
-    base.show(pref='acc', suffix='behav', **kwargs)
-
-def run(**kwargs):
-    getattr(Snodgrass(**kwargs), kwargs['func'])()
+    html.writeh('Correlation', h='h2')
+    kwargs['layers'] = 'probs'
+    kwargs['task'] = 'run'
+    kwargs['func'] = 'corr'
+    myexp = Snodgrass(**kwargs)
+    for depth, model_name in myexp.models:
+        if depth == 'deep':
+            myexp.set_model(model_name)
+            myexp.corr()
