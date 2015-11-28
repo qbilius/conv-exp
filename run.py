@@ -2,9 +2,9 @@ import argparse, sys, os
 import numpy as np
 import seaborn as sns
 
-sys.path.insert(0, '../psychopy_ext')
+sys.path.insert(0, '/home/lbp/libs/psychopy_ext')
 from psychopy_ext import models, stats, plot, report
-import base2
+import base
 
 np.random.seed(0)
 
@@ -60,15 +60,15 @@ else:
         if not isinstance(layers, (tuple, list)):
             layers = args.layers
 
-if args.exp in ['geons'] and args.subset is None:
+if args.exp in ['geons'] and args.subset is None and args.task != 'report':
     raise Exception('For geons dataset you must choose a subset '
                     'using the --subset flag.')
 
 if args.forceresps: args.force = True
 
-kwargs = {'task': args.task,
+kwargs = {'exp': args.exp,
+          'task': args.task,
           'func': args.func,
-          'exp': args.exp,
           'subset': args.subset,
           'model_name': args.model,
           'model_path': args.model_path,
@@ -86,9 +86,9 @@ kwargs = {'task': args.task,
 
 if args.exp == 'report':
     kwargs['task'] = 'report'
-    base2.run(**kwargs)
+    base.run(**kwargs)
 else:
-    base2.run(**kwargs)
+    base.run(**kwargs)
 #elif args.task == 'run':
 #    m = base2.Base(**kwargs)
 #    getattr(m, args.func)()

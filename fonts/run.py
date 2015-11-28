@@ -17,11 +17,14 @@ import base
 class Fonts(base.Base):
 
     def __init__(self, *args, **kwargs):
-        self.kwargs = kwargs
-        self.dims = OrderedDict([('shape', np.repeat(range(6),6))])
-        self.colors = OrderedDict([('shape', base.COLORS[1])])
-        self.skip_hmo = True
+        kwargs['skip_hmo'] = True
         super(Fonts, self).__init__(*args, **kwargs)
+        self.kwargs = kwargs
+        self.dims = OrderedDict([('px', np.repeat(range(6),6)),
+                                 ('shape', np.repeat(range(6),6))])
+        # self.colors = OrderedDict([('shape', base.COLORS[1])])
+        self.colors = OrderedDict([('px', base.COLORS[0]),
+                                   ('shape', base.COLORS[1])])
 
     def behav(self):
         dfiles = glob.glob('fonts/multipleArrangements/results/fonts_*_2015*.mat')
@@ -48,6 +51,40 @@ class Fonts(base.Base):
         sc = pandas.DataFrame(sc, columns=['subjid', 'dissimilarity'])
         return sc
 
+    def mds(self):
+        p = sns.color_palette('Set2', 8)
+        colors = [p[1], p[5], p[6], p[2], p[3], p[7]]
+        icons = []
+        ims = sorted(glob.glob('fonts/img/alpha/*.png'))
+        for i,c in enumerate(self.dims['shape']):
+            icon = models.load_image(ims[i], keep_alpha=True)
+            # import pdb; pdb.set_trace()
+
+            icon[:,:,:3][icon[:,:,3]>0] = colors[c][0], colors[c][1], colors[c][2]
+            # for j in range(3):
+            #     icon[:,:,j][icon[:,:,j]<.5] = colors[c][j]
+            icons.append(icon)
+        super(Fonts, self).mds(icons=icons, seed=0, zoom=.2)
+
+    def gen_letters(self):
+        import subprocess, string
+        fonts = sorted(glob.glob('fonts/data/fonts/*.ttf'))
+        sizes = {'arcadian': 500, 'atlantean': 400, 'dovahzul': 400,
+                 'futurama': 500, 'hymmnos': 400, 'ulog': 1000}
+        cmd = ('convert -font {} -pointsize {} -background {} '
+               'label:{} -trim '
+               '-gravity center -extent 512x512 -resize 256x256 {}')
+        for bckg in ['white', 'none']:
+            for font in fonts:
+                fontname = os.path.basename(font).split('.')[0]
+                for letter in string.ascii_lowercase[:6]:
+                    name = fontname + '_' + letter + '.png'
+                    if bckg == 'white':
+                        newname = os.path.join('fonts', 'img', name)
+                    else:
+                        newname = os.path.join('fonts', 'img', 'alpha', name)
+                    subprocess.call(cmd.format(font, sizes[fontname], bckg, letter, newname).split())
+
 
 class Compare(base.Compare):
     def __init__(self, *args):
@@ -64,25 +101,32 @@ class Compare(base.Compare):
 def report(**kwargs):
 
     html = kwargs['html']
-    kwargs['bootstrap'] = True
-
     html.writeh('Fonts', h='h1')
 
-    html.writeh('Clustering', h='h2')
+    # html.writeh('Clustering', h='h2')
+    #
+    # kwargs['layers'] = 'all'
+    # kwargs['task'] = 'run'
+    # kwargs['func'] = 'cluster'
+    # myexp = Fonts(**kwargs)
+    # for depth, model_name in myexp.models:
+    #     if depth != 'shallow':
+    #         myexp.set_model(model_name)
+    #         myexp.cluster()
+    #
+    # kwargs['layers'] = 'output'
+    # kwargs['task'] = 'compare'
+    # myexp = Fonts(**kwargs)
+    # Compare(myexp).cluster()
 
-    kwargs['layers'] = 'all'
-    kwargs['task'] = 'run'
-    kwargs['func'] = 'cluster'
-    myexp = Fonts(**kwargs)
-    for depth, model_name in myexp.models:
-        if depth != 'shallow':
-            myexp.set_model(model_name)
-            myexp.cluster()
-
+    html.writeh('MDS', h='h2')
     kwargs['layers'] = 'output'
-    kwargs['task'] = 'compare'
+    kwargs['task'] = 'run'
+    kwargs['func'] = 'mds'
     myexp = Fonts(**kwargs)
-    Compare(myexp).cluster()
+    for name in ['shape', 'googlenet']:
+        myexp.set_model(name)
+        myexp.mds()
 
     html.writeh('Correlation', h='h2')
 
@@ -97,5 +141,7 @@ def report(**kwargs):
 
     kwargs['layers'] = 'output'
     kwargs['task'] = 'compare'
+    kwargs['force'] = False
+    kwargs['forceresps'] = False
     myexp = Fonts(**kwargs)
     Compare(myexp).corr()

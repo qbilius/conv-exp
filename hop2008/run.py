@@ -17,22 +17,19 @@ import base
 class HOP2008(base.Base):
 
     def __init__(self, *args, **kwargs):
+        kwargs['skip_hmo'] = False
+        super(HOP2008, self).__init__(*args, **kwargs)
         self.kwargs = kwargs
         self.dims = OrderedDict([
                         ('px', np.array([0,0,0,1,1,1,2,2,2])),
                         ('shape', np.array([0,1,2,1,2,0,2,0,1]))])
         self.colors = OrderedDict([('px', base.COLORS[0]),
                                    ('shape', base.COLORS[1])])
-        self.skip_hmo = False
-        super(HOP2008, self).__init__(*args, **kwargs)
 
     def mds(self):
-        self.dissimilarity()
-        path = os.path.join('img', 'png', '*.*')
-        ims = sorted(glob.glob(path))
-        super(Base, self).mds(self.dis, ims, kind='metric', seed=11)  # just to match behavioral mds
-        self.show(pref='mds')
-
+        path = os.path.join('hop2008', 'img', 'png', '*.*')
+        icons = sorted(glob.glob(path))
+        super(HOP2008, self).mds(icons=icons, seed=3)  # to match behav
 
 
     # def plot_lin(self, subplots=False):
@@ -172,6 +169,7 @@ class HOP2008(base.Base):
         df['similarity'] = 1 - df.dissimilarity
         group = df.copy()
         del group['dissimilarity']
+        print group
 
         if self.task == 'run' and plot:
             self.plot_single(group, 'dis_group')
@@ -247,22 +245,31 @@ def report(**kwargs):
 
     html.writeh('HOP2008', h='h1')
 
-    html.writeh('Clustering', h='h2')
+    # html.writeh('Clustering', h='h2')
+    #
+    # kwargs['layers'] = 'all'
+    # kwargs['task'] = 'run'
+    # kwargs['func'] = 'dis_group'
+    # myexp = HOP2008(**kwargs)
+    # for depth, model_name in myexp.models:
+    #     if depth != 'shallow':
+    #         myexp.set_model(model_name)
+    #         myexp.dis_group()
+    #
+    # kwargs['layers'] = 'output'
+    # kwargs['task'] = 'compare'
+    # kwargs['func'] = 'dis_group_diff'
+    # myexp = HOP2008(**kwargs)
+    # Compare(myexp).dis_group_diff()
 
-    kwargs['layers'] = 'all'
-    kwargs['task'] = 'run'
-    kwargs['func'] = 'dis_group'
-    myexp = HOP2008(**kwargs)
-    for depth, model_name in myexp.models:
-        if depth != 'shallow':
-            myexp.set_model(model_name)
-            myexp.dis_group()
-
+    html.writeh('MDS', h='h2')
     kwargs['layers'] = 'output'
-    kwargs['task'] = 'compare'
-    kwargs['func'] = 'dis_group_diff'
+    kwargs['task'] = 'run'
+    kwargs['func'] = 'mds'
     myexp = HOP2008(**kwargs)
-    Compare(myexp).dis_group_diff()
+    for name in ['px', 'shape', 'googlenet']:
+        myexp.set_model(name)
+        myexp.mds()
 
     html.writeh('Correlation', h='h2')
 
@@ -278,5 +285,7 @@ def report(**kwargs):
     kwargs['layers'] = 'output'
     kwargs['task'] = 'compare'
     kwargs['func'] = 'corr'
+    kwargs['force'] = False
+    kwargs['forceresps'] = False
     myexp = HOP2008(**kwargs)
     Compare(myexp).corr()

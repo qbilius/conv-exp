@@ -8,7 +8,7 @@ import seaborn as sns
 from nltk.corpus import wordnet as wn
 
 sys.path.insert(0, '../../psychopy_ext')
-from psychopy_ext import stats
+from psychopy_ext import stats, models
 
 import base
 
@@ -16,37 +16,74 @@ import base
 class Stefania(base.Base):
 
     def __init__(self, *args, **kwargs):
+        kwargs['skip_hmo'] = False
+        super(Stefania, self).__init__(*args, **kwargs)
         self.kwargs = kwargs
         kinds = np.meshgrid(range(6), range(9))
         kinds = [kinds[1], kinds[1], kinds[0], (kinds[0] < 3).astype(int)]
+        kinds = [k.ravel() for k in kinds]
         self.dims = OrderedDict()
         self.colors = OrderedDict()
         for i, (dim, kind) in enumerate(zip(['px', 'shape', 'category', 'natural-vs-manmade'], kinds)):
             self.dims[dim] = kind
             self.colors[dim] = base.COLORS[i]
-        self.skip_hmo = False
-        super(Stefania, self).__init__(*args, **kwargs)
+
+        if self.filter:
+            self.sel = self.filter_imagenet()
+            # self.ims = [im for im,s in zip(self.ims,sel) if s]
+            # self.dims = {k:v[sel] for k,v in self.dims.items()}
+            # self.sel = sel
+    # def mds(self):
+    #     self.dissimilarity()
+    #     path = os.path.join('img', 'png', '*.*')
+    #     ims = sorted(glob.glob(path))
+    #     super(Base, self).mds(self.dis, ims, kind='metric')
+    #     self.show(pref='mds')
 
     def mds(self):
-        self.dissimilarity()
-        path = os.path.join('img', 'png', '*.*')
-        ims = sorted(glob.glob(path))
-        super(Base, self).mds(self.dis, ims, kind='metric')
-        self.show(pref='mds')
+        p = sns.color_palette('Set2', 8)
+        colors = [p[1], p[5], p[6], p[2], p[3], p[7]]
+        icons = []
+        ims = sorted(glob.glob('stefania/img/alpha/*.png'))
+        for imno,c in enumerate(self.dims['category']):
+            im = models.load_image(ims[imno], keep_alpha=True)
+            mask = im[:,:,3]>0
+            im[:,:,:3][mask] = colors[c][0], colors[c][1], colors[c][2]
+            icons.append(im)
+        super(Stefania, self).mds(icons=icons, seed=0, zoom=.15)
+
+    def mds_outlines(self):
+        p = sns.color_palette('Set2', 8)
+        colors = [p[1], p[5], p[6], p[2], p[3], p[7]]
+        icons = []
+        ims = sorted(glob.glob('stefania/img/alpha/*.png'))
+        for imno,c in enumerate(self.dims['category']):
+            im = models.load_image(ims[imno], keep_alpha=True)
+            # generate outlines
+            mask = im[:,:,3]>0
+            icon = scipy.ndimage.binary_dilation(mask, structure=np.ones((50,50)))
+            icon = np.dstack([icon*colors[c][i] for i in range(3)] + [(icon>0).astype(float)])
+            icon[mask] = im[mask]
+            icons.append(icon)
+        super(Stefania, self).mds(icons=icons, seed=0, zoom=.15)
+
+    def corr(self):
+        self.dims = OrderedDict([(k,v) for k,v in self.dims.items() if k in ['shape', 'category']])
+        return super(Stefania, self).corr()
 
     def plot_single(self, *args, **kwargs):
         return super(Stefania, self).plot_single(ylim=[-.1,1], *args, **kwargs)
 
-    def plot_lin(self):
-        xlabel = '%s layer' % self.model_name
-        self.lin = self.lin.rename(columns={'layer': xlabel})
-        self.plot_single_model(self.lin, subplots=True)
-
     def filter_imagenet(self):
-        if self.filter:
-            return self.pred_acc(compute_acc=False)
-        else:
-            return None
+        #myexp = Stefania(**self.kwargs)
+        #myexp.set_model('caffenet')
+        # import pdb; pdb.set_trace()
+        df = self.pred_acc(compute_acc=False)
+        sel = np.array(df.kind!='unknown')
+        #sel = np.array(df.accuracy==True)
+        #import pdb; pdb.set_trace()
+
+        return sel
 
     # def plot_lin(self):
     #     xlabel = '%s layers' % self.model_name
@@ -115,18 +152,18 @@ class Stefania(base.Base):
             f.write(','.join([synid, name, syn.definition()]))
         f.close()
 
-def gen_alpha(**kwargs):
-    for fn in sorted(glob.glob('img/*.jpg')):
-        fname = os.path.basename(fn)
-        newname = fname.split('.')[0] + '.png'
-        newfname = os.path.join('img/png', newname)
-        fuzz = '3%'
-        # if fname == 'hopStim_054.jpg':
-        #     fuzz = '5%'
-        # else:
-        #     fuzz = '10%'
-        subprocess.call(('convert {} -alpha set -channel RGBA -fuzz ' + fuzz +
-                        ' -fill none -floodfill +0+0 white -blur 1x1 {}').format(fn, newfname).split())
+    def gen_alpha(self):
+        for fn in sorted(glob.glob('stefania/img/*.jpg')):
+            fname = os.path.basename(fn)
+            newname = fname.split('.')[0] + '.png'
+            newfname = os.path.join('stefania/img/alpha', newname)
+            fuzz = '3%'
+            # if fname == 'hopStim_054.jpg':
+            #     fuzz = '5%'
+            # else:
+            #     fuzz = '10%'
+            subprocess.call(('convert {} -alpha set -channel RGBA -fuzz ' + fuzz +
+                            ' -fill none -floodfill +0+0 white -blur 1x1 {}').format(fn, newfname).split())
 
 def gen_sil(**kwargs):
     for fn in sorted(glob.glob('img/*.jpg')):
@@ -223,23 +260,29 @@ class Compare(base.Compare):
     def __init__(self, *args):
         super(Compare, self).__init__(*args)
 
-    def corr(self):
-        del self.myexp.dims['px']
-        del self.myexp.dims['natural-vs-manmade']
-        return super(Compare, self).corr()
+    # def corr(self):
+    #
+    #     return super(Compare, self).corr()
 
 def report(**kwargs):
     html = kwargs['html']
     html.writeh('Stefania', h='h1')
 
+    html.writeh('MDS', h='h2')
+    kwargs['layers'] = 'output'
+    kwargs['task'] = 'run'
+    kwargs['func'] = 'mds'
+    myexp = Stefania(**kwargs)
+    myexp.set_model('googlenet')
+    myexp.mds()
+
     html.writeh('Correlation', h='h2')
 
+    html.writeh('Original stimuli', h='h3')
     kwargs['layers'] = 'all'
     kwargs['task'] = 'run'
     kwargs['func'] = 'corr'
     myexp = Stefania(**kwargs)
-    del myexp.dims['px']
-    del myexp.dims['natural-vs-manmade']
 
     for depth, model_name in myexp.models:
         myexp.set_model(model_name)
@@ -248,5 +291,33 @@ def report(**kwargs):
 
     kwargs['layers'] = 'output'
     kwargs['task'] = 'compare'
+    kwargs['force'] = False
+    kwargs['forceresps'] = False
     myexp = Stefania(**kwargs)
+    Compare(myexp).corr()
+
+    html.writeh('Only in the ImageNet', h='h3')
+    kwargs['layers'] = 'output'
+    kwargs['filter'] = True
+    myexp = Stefania(**kwargs)
+    myexp.skip_hmo = True
+    myexp.set_models()
+    Compare(myexp).corr()
+
+    html.writeh('Silhouettes', h='h3')
+    kwargs['layers'] = 'output'
+    kwargs['subset'] = 'sil'
+    kwargs['filter'] = False
+    myexp = Stefania(**kwargs)
+    myexp.skip_hmo = True
+    myexp.set_models()
+    Compare(myexp).corr()
+
+    html.writeh('Silhouettes in ImageNet', h='h3')
+    kwargs['layers'] = 'output'
+    kwargs['subset'] = 'sil'
+    kwargs['filter'] = True
+    myexp = Stefania(**kwargs)
+    myexp.skip_hmo = True
+    myexp.set_models()
     Compare(myexp).corr()

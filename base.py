@@ -13,7 +13,7 @@ from psychopy_ext import models, stats, plot, report
 
 SHALLOW = ['px', 'gaborjet', 'hog', 'phog', 'phow']
 HMAX = ['hmax99', 'hmax_hmin', 'hmax_pnas']#, 'randfilt']
-DEEP = ['caffenet', 'hmo', 'vgg-19', 'googlenet']
+DEEP = ['caffenet', 'vgg-19', 'googlenet']
 
 COLORS = sns.color_palette('Set2', 8)
 # PARAMS = {'fonts': {'dims': OrderedDict([('shape', np.repeat(range(6),6))]),
@@ -49,7 +49,7 @@ def get_data(pref):
             if self.forceresps:
                 return func(self)
             elif self.force:
-                if pref != 'resps':
+                if pref != 'resps' and self.model_name not in self.dims:
                     return func(self)
                 else:
                     data = self.load(pref)
@@ -102,7 +102,14 @@ def msg(*args):
         print args
 
 def load(pref='', exp='', subset=None, suffix='', layers=None,
-         filt_layers=True, path='computed'):
+         filt_layers=True):
+    if suffix in ['shape','category']:
+        path = 'data'
+    elif suffix == 'hmo' and pref == 'resps':
+        path = 'data'
+    else:
+        path = 'computed'
+
     path = os.path.join(exp, path)
     name = '_'.join(filter(None, [pref, exp, subset, suffix]))
     name = os.path.join(path, name)
@@ -137,22 +144,20 @@ def save(data, pref='', exp='', subset=None, suffix='', savedata=True,
 def show(pref='', exp='', subset=None, suffix='', savefig='', html=None,
          caption=None):
     name =  '_'.join(filter(None, ['plot', pref, exp, subset, suffix]))
-    name += '.' + savefig
 
     if html is not None:
         html.writeimg(name, caption=caption)
-        path = os.path.join(html.paths['report'], html.paths['exp_root'])
+        # path = os.path.join(html.path, html.imgdir)
     else:
+        name += '.' + savefig
         path = os.path.join(exp, 'computed')
-
-    if not os.path.isdir(path): os.makedirs(path)
-    name = os.path.join(path, name)
-
-    if savefig != '':
-        sns.plt.savefig(name, dpi=300)
-        msg('saved to', name)
-    else:
-        sns.plt.show()
+        if not os.path.isdir(path): os.makedirs(path)
+        name = os.path.join(path, name)
+        if savefig != '':
+            sns.plt.savefig(name, dpi=300)
+            msg('saved to', name)
+        else:
+            sns.plt.show()
 
 def filter_layers(data, layers):
 
@@ -189,6 +194,24 @@ def filter_layers(data, layers):
     msg('using layers', ', '.join(layers))
 
     return data
+
+def row2dis(row):
+    n = int((1 + np.sqrt(1 + 8*row.shape[1])) / 2)
+    dis = np.zeros((row.shape[0], n, n))
+    inds = np.triu_indices(n, k=1)
+    dis[:,inds[0],inds[1]] = row
+    dis = np.rollaxis(dis, 1, 3)
+    dis[:,inds[0],inds[1]] = row
+    for d in dis: np.fill_diagonal(d, np.nan)
+    return dis
+
+def dis2row(dis):
+    inds = np.triu_indices(dis.shape[1], k=1)
+    if dis.ndim == 3:
+        row = [d[inds] for d in dis]
+    else:
+        row = dis[inds]
+    return row
 
 
 class Base(object):
@@ -248,16 +271,30 @@ class Base(object):
     def load(self, pref):
         print
         print '{:=^50}'.format(' ' + self.model_name + ' ')
-        return load(pref=pref, exp=self.exp, subset=self.subset,
+
+        if self.filter and pref != 'dis':
+            subset = 'filt' if self.subset is None else self.subset + '_filt'
+        else:
+            subset = self.subset
+
+        return load(pref=pref, exp=self.exp, subset=subset,
                     suffix=self.model_name, layers=self.layers)
 
     def save(self, data, pref):
-        save(data, pref=pref, exp=self.exp, subset=self.subset,
+        if self.filter:
+            subset = 'filt' if self.subset is None else self.subset + '_filt'
+        else:
+            subset = self.subset
+        save(data, pref=pref, exp=self.exp, subset=subset,
              suffix=self.model_name, savedata=self.savedata)
 
     def show(self, pref, suffix=None, caption=None):
         if suffix is None: suffix = self.model_name
-        return show(pref=pref, exp=self.exp, subset=self.subset,
+        if self.filter:
+            subset = 'filt' if self.subset is None else self.subset + '_filt'
+        else:
+            subset = self.subset
+        return show(pref=pref, exp=self.exp, subset=subset,
                     suffix=suffix, savefig=self.savefig,
                     html=self.html, caption=caption)
 
@@ -306,7 +343,7 @@ class Base(object):
             for layer, out in output.items():
                 resps[layer] = out.reshape((out.shape[0], -1))
 
-            if self.model_name not in models.CAFFE_MODELS:
+            if self.model_name in ['hmax_hmin', 'hmax_pnas']:
                 self.save(resps, 'resps')
         return resps
 
@@ -326,6 +363,57 @@ class Base(object):
             preds = m.predict(self.ims, topn=5)
             self.save(preds, 'preds')
         return preds
+
+    def pred_acc(self, compute_acc=True):
+        if compute_acc:
+            preds = self.predict()
+        imagenet_labels = self.synsets_from_txt('synset_words.txt')
+        dataset_labels = self.synsets_from_csv(os.path.join(self.exp, self.exp + '.csv'))
+        all_hyps = lambda s:s.hyponyms()
+
+        df = pandas.DataFrame.from_dict(dataset_labels)
+        df['imgid'] = ''
+        df['imdnames'] = ''
+        df['kind'] = 'unknown'
+        df['accuracy'] = np.nan
+        df['accuracy0'] = np.nan
+        for no, dtlab in enumerate(dataset_labels):
+            hypos = set([i for i in dtlab['synset'].closure(all_hyps)])
+            hypos = hypos.union([dtlab['synset']])
+            for imglab in imagenet_labels:
+                if imglab['synset'] in hypos:
+                    df.loc[no, 'imgid'] = imglab['id']
+                    df.loc[no, 'imgnames'] = imglab['names']
+                    if imglab['id'] == df.loc[no, 'id']:
+                        df.loc[no, 'kind'] = 'exact'
+                    else:
+                        df.loc[no, 'kind'] = 'superordinate'
+                    break
+            if compute_acc:
+                acc = False
+                acc0 = False
+                for i,p in enumerate(preds[no]):
+                    psyn = wn._synset_from_pos_and_offset(p['synset'][0],
+                                                          int(p['synset'][1:]))
+                    df.loc[no, 'pred%d'%i] = ', '.join(psyn.lemma_names())
+                    # check if the prediction is exact
+                    # or at least more specific than the correct resp
+                    if psyn in hypos:
+                        acc = True
+                    if i==0:
+                        if psyn in hypos:
+                            acc0 = True
+                if acc == False:
+                    if df.loc[no, 'kind'] != 'unknown':
+                        df.loc[no, 'accuracy'] = False
+                else:
+                    df.loc[no, 'accuracy'] = True
+                if acc0 == False:
+                    if df.loc[no, 'kind'] != 'unknown':
+                        df.loc[no, 'accuracy0'] = False
+                else:
+                    df.loc[no, 'accuracy0'] = True
+        return df
 
     @get_data('dis')
     def dissimilarity(self):
@@ -355,30 +443,62 @@ class Base(object):
     def cluster_behav(self):
         return None
 
+    def mds(self, icons=None, seed=None, **kwargs):
+        if self.model_name in self.dims:
+            dim = self.model_name
+            dis = self.dissimilarity()
+            # dis = load(pref='dis', exp=self.exp, suffix=dim)
+            if dis[dim].ndim == 3:
+                dis[dim] = np.mean(dis[dim], axis=0)
+        else:
+            dis = self.dissimilarity()
+
+        if icons is None: icons = self.ims
+        names = [os.path.splitext(os.path.basename(im))[0] for im in self.ims]
+        mds_res = models.mds(dis, names=names)
+        models.plot_data(mds_res, kind='mds', icons=icons, **kwargs)
+        self.show('mds')
+
     @get_data('corr')
     def corr(self):
         dis = self.dissimilarity()
         df = []
+        nname = models.NICE_NAMES[self.model_name].lower()
         for dim in self.dims:
-            path = 'computed' if dim == 'px' else 'data'
-            dim_data = load(pref='dis', exp=self.exp, suffix=dim, path=path)
+            dim_data = load(pref='dis', exp=self.exp, suffix=dim)
+            if dim_data is None:
+                name = self.model_name
+                self.set_model(dim)
+                dim_data = self.dissimilarity()
+                self.set_model(name)
+                if dim_data is None:
+                    raise Exception('dimension data %s cannot be obtained' % dim)
+
             dim_data = dim_data[dim]
             if dim_data.ndim == 3:
                 dim_data = np.mean(dim_data, axis=0)
+            struct = self.dims[dim] if self.exp in ['fonts', 'stefania'] else None
+            if self.filter:
+                dim_data = dim_data[self.sel][:,self.sel]
+                struct = None
             for layer, data in dis.items():
-                corr = stats.corr(data, dim_data, sel='upper')
+                d = data[self.sel][:,self.sel] if self.filter else data
+                corr = stats.corr(d, dim_data, sel='upper')
                 if self.bootstrap:
                     print 'bootstrapping stats...'
-                    bf = stats.bootstrap_resample(data, dim_data,
-                            func=stats.corr, ci=None)
+                    bf = stats.bootstrap_resample(d, dim_data,
+                            func=stats.corr, ci=None, seed=0, sel='upper',
+                            struct=struct)
                     for i, b in enumerate(bf):
-                        df.append([dim, self.model_name, layer, corr, i, b])
+                        df.append([dim, nname, layer, corr, i, b])
                 else:
-                    df.append([dim, self.model_name, layer, corr, 0, np.nan])
+                    df.append([dim, nname, layer, corr, 0, np.nan])
         df = pandas.DataFrame(df, columns=['kind', 'models', 'layer',
                                             'correlation', 'iter', 'bootstrap'])
         self.save(df, pref='corr')
-        self.plot_single(df, 'corr')
+        if self.task == 'run':
+            self.plot_single(df, 'corr')
+        return df
 
     # def plot_corr(self, subplots=False, **kwargs):
     #     self.corr = self.corr.rename(columns={'model1': 'kind',
@@ -390,11 +510,14 @@ class Base(object):
         rels = OrderedDict()
         for dim in self.dims:
             self.set_model(dim)
-            path = 'computed' if dim == 'px' else 'data'
-            data = load(pref='dis', exp=self.exp, suffix=dim, path=path)[dim]
+            data = load(pref='dis', exp=self.exp, suffix=dim)[dim]
             if data.ndim == 3:
-                inds = np.triu_indices(data.shape[1], k=1)
-                df = np.array([d[inds] for d in data])
+                if self.filter:
+                    inds = np.triu_indices(data[0][self.sel][:,self.sel].shape[1], k=1)
+                    df = np.array([d[self.sel][:,self.sel][inds] for d in data])
+                else:
+                    inds = np.triu_indices(data.shape[1], k=1)
+                    df = np.array([d[inds] for d in data])
                 rels[dim] =  stats.reliability(df)
             else:
                 rels[dim] = [np.nan, np.nan]
@@ -409,11 +532,18 @@ class Base(object):
         else:
             hue = 'kind'
             color = None
-            palette = self.colors.values()
-        # import pdb; pdb.set_trace()
+            palette = [self.colors[dim] for dim in self.dims]
 
-        g = sns.factorplot('layer', pref2value[pref], data=df, hue=hue, ci=0, kind='point', color=color, palette=palette)
+        g = sns.factorplot('layer', pref2value[pref], data=df, hue=hue, ci=0, kind='point', color=color, palette=palette, aspect=2)
 
+        dff = _set_ci(df, groupby=['kind', 'layer'])
+
+        palette = [self.colors[dim] for dim in self.dims]
+        for kind, col in zip(dff.kind.unique(), palette):
+            sel = dff.kind == kind
+            sns.plt.fill_between(range(len(dff[sel].layer.unique())),
+                dff[sel].ci_low, dff[sel].ci_high, zorder=0,
+                color=col, alpha=.3)
         # sns.plt.ylim([-.1, 1.1])
         sns.plt.ylim(ylim)
         sns.plt.title(models.NICE_NAMES[self.model_name])
@@ -428,16 +558,30 @@ class Compare(object):
     def load(self, pref):
         print
         print '{:=^50}'.format(' ' + pref2func[pref] + ' ')
-        return load(pref=pref, exp=self.myexp.exp, subset=self.myexp.subset,
+        if self.myexp.filter and pref != 'dis':
+            subset = 'filt' if self.myexp.subset is None else self.myexp.subset + '_filt'
+        else:
+            subset = self.myexp.subset
+        return load(pref=pref, exp=self.myexp.exp, subset=subset,
                     suffix='all', filt_layers=False)
 
     def save(self, data, pref):
-        save(data, pref=pref, exp=self.myexp.exp, subset=self.myexp.subset,
+        if self.myexp.filter:
+            subset = 'filt' if self.myexp.subset is None else self.myexp.subset + '_filt'
+        else:
+            subset = self.myexp.subset
+
+        save(data, pref=pref, exp=self.myexp.exp, subset=subset,
              suffix='all', savedata=self.myexp.savedata)
 
     def show(self, pref, suffix='all'):
+        if self.myexp.filter:
+            subset = 'filt' if self.myexp.subset is None else self.myexp.subset + '_filt'
+        else:
+            subset = self.myexp.subset
+        # import pdb; pdb.set_trace()
         return show(pref=pref, exp=self.myexp.exp, suffix=suffix,
-                    subset=self.myexp.subset,
+                    subset=subset,
                     savefig=self.myexp.savefig, html=self.myexp.html)
 
     def get_data_all(self, pref, kind):
@@ -446,11 +590,11 @@ class Compare(object):
         #
         #     df = getattr(self, '_' + pref + '_all')()
         # else:
-        if not self.myexp.force:
-            df = self.load(pref)
-            if df is None: df = getattr(self, '_' + kind + '_all')(pref)
-        else:
-            df = getattr(self, '_' + kind + '_all')(pref)
+        # if not self.myexp.force:
+        #     df = self.load(pref)
+        #     if df is None: df = getattr(self, '_' + kind + '_all')(pref)
+        # else:
+        df = getattr(self, '_' + kind + '_all')(pref)
 
         if pref != 'preds':
             dfs =[filter_layers(df[df.models==m], self.myexp.layers) for m in df.models.unique()]
@@ -458,6 +602,8 @@ class Compare(object):
         return df
 
     def compare(self, pref, ylim=[-.1,1]):
+        print
+        print '{:=^50}'.format(' ' + pref + ' ')
         df = self.get_data_all(pref, kind='compare')
         behav = self.myexp.cluster_behav()
         if behav is not None:
@@ -484,7 +630,7 @@ class Compare(object):
             if self.myexp.bootstrap:
                 if self.myexp.html is not None:
                     self.myexp.html.writetable(bf,
-                        caption='bootstrapped t-test (one-tailed, ind. samples)')
+                        caption='bootstrapped t-test (one-tailed, rel. samples)')
 
     def _compare_all(self, pref):
         df = []
@@ -501,21 +647,14 @@ class Compare(object):
         df.insert(0, 'depth', props[0])
         df.insert(1, 'models', props[1])
 
-        self.save(df, pref=pref)
-        return df
-
-    def _set_ci(self, df, ci=95):
-        f_low = lambda x: np.percentile(x, 50-ci/2.)
-        f_high = lambda x: np.percentile(x, 50+ci/2.)
-
-        df = stats.factorize(df)
-        pct = df.groupby(['kind', 'models']).bootstrap.agg({'ci_low': f_low, 'ci_high':f_high}).reset_index()
-        df = df.groupby(['kind', 'models']).agg(lambda x: x.iloc[0]).reset_index()
-        df['ci_low'] = pct.ci_low
-        df['ci_high'] = pct.ci_high
+        # self.save(df, pref=pref)
         return df
 
     def corr(self):
+        print
+        print '{:=^50}'.format(' corr ')
+        self.layers = 'output'
+        msg('WARNING', 'using only the output layer')
         df = self.get_data_all('corr', kind='corr')
         rels = self.myexp.reliability()
         for dim in self.myexp.dims:
@@ -525,15 +664,30 @@ class Compare(object):
                 bf = self.bootstrap_ttest_grouped(df[df.kind==dim])
                 if self.myexp.html is not None:
                     self.myexp.html.writetable(bf,
-                        caption='bootstrapped t-test (one-tailed, ind. samples)')
+                        caption='bootstrapped t-test (one-tailed, rel. samples)')
         # df = pandas.concat(dfs, axis=0)
         # import pdb; pdb.set_trace()
 
     def _corr_all(self, pref):
         df = []
+        props = []
+        for depth, model_name in self.myexp.models:
+            self.myexp.set_model(model_name)
+            out = self.myexp.corr()
+            df.append(out)
+            props.extend([depth] * len(out))
+
+        df = pandas.concat(df, axis=0, ignore_index=True)
+        props = np.array(props).T
+        df.insert(0, 'depth', props)
+        # df.insert(1, 'models', props[1])
+        # self.save(df, pref=pref)
+        return df
+
+    def _corr_all_orig(self, pref):
+        df = []
         for dim in self.myexp.dims:
-            path = 'computed' if dim == 'px' else 'data'
-            dim_data = load(pref='dis', exp=self.myexp.exp, suffix=dim, path=path)[dim]
+            dim_data = load(pref='dis', exp=self.myexp.exp, suffix=dim)[dim]
             if dim_data.ndim == 3:
                 dim_data = np.mean(dim_data, axis=0)
             for depth, model_name in self.myexp.models:
@@ -544,8 +698,8 @@ class Compare(object):
                 corr = stats.corr(dis, dim_data, sel='upper')
                 if self.myexp.bootstrap:
                     print 'bootstrapping stats...'
-                    bf = stats.bootstrap_resample(dis, dim_data, func=stats.corr,
-                                                    ci=None)
+                    bf = stats.bootstrap_resample(dis, dim_data, func=stats.corr, ci=None, seed=0, sel='upper',
+                        struct=self.dims[dim].ravel())
                     for i, b in enumerate(bf):
                         df.append([dim, depth, model_name, layer, corr, i, b])
                 else:
@@ -557,7 +711,7 @@ class Compare(object):
 
     def plot_all(self, df, values, dim, pref='', ceiling=None, color=None, ylim=[-.1, 1.1]):
 
-        df = self._set_ci(df)
+        df = _set_ci(df)
         print df
 
         gray = sns.color_palette('Set2', 8)[-1]
@@ -605,7 +759,6 @@ class Compare(object):
             ax.set_xticklabels([])
 
     def bootstrap_ttest_grouped(self, bf, tails='one'):
-
         bfg = bf.groupby(['depth', 'iter']).mean()
         bfg = bfg.unstack(level='depth').bootstrap
         st = []
@@ -621,12 +774,22 @@ class Compare(object):
         print st
         return st
 
+def _set_ci(df, groupby=['kind', 'models'], ci=95):
+    f_low = lambda x: np.percentile(x, 50-ci/2.)
+    f_high = lambda x: np.percentile(x, 50+ci/2.)
+
+    df = stats.factorize(df)
+    pct = df.groupby(groupby).bootstrap.agg({'ci_low': f_low, 'ci_high':f_high}).reset_index()
+    df = df.groupby(groupby).agg(lambda x: x.iloc[0]).reset_index()
+    df['ci_low'] = pct.ci_low
+    df['ci_high'] = pct.ci_high
+    return df
+
 def gen_report(model_name=None, **kwargs):
     kwargs['func'] = None
     kwargs['report'] = True
     kwargs['savefig'] = 'svg'
-    # kwargs['bootstrap'] = False
-
+    kwargs['bootstrap'] = True
     mod = __import__(kwargs['exp']+'.run', fromlist=[kwargs['exp'].title()])
     getattr(mod, 'report')(**kwargs)
 
@@ -639,16 +802,16 @@ def get_exp(model_name=None, **kwargs):
 def run(model_name, **kwargs):
     reppath='report/'
     if kwargs['exp'] == 'report':
-        html = report.Report(paths={'report': reppath, 'exp_root': None})
+        html = report.Report(path=reppath, imgext='')
         html.open()
         for exp in ['snodgrass', 'hop2008', 'fonts', 'geons', 'stefania']:
             kwargs['exp'] =  exp
             kwargs['html'] = html
-            html.paths['exp_root'] = exp + '/'
+            html.imgdir = exp
             gen_report(**kwargs)
         html.close()
     elif kwargs['task'] == 'report':
-        html = report.Report(paths={'report': reppath, 'exp_root': kwargs['exp']+'/'})
+        html = report.Report(path=reppath, imgdir=kwargs['exp'])
         kwargs['html'] = html
         html.open()
         gen_report(**kwargs)

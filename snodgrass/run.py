@@ -16,48 +16,11 @@ import base
 class Snodgrass(base.Base):
 
     def __init__(self, *args, **kwargs):
+        kwargs['skip_hmo'] = True
         super(Snodgrass, self).__init__(*args, **kwargs)
         self.kwargs = kwargs
         self.dims = OrderedDict([('shape', np.repeat(range(6),6))])
         self.colors = OrderedDict([('shape', base.COLORS[1])])
-
-    def pred_acc(self, compute_acc=True):
-        if compute_acc:
-            preds = self.predict()
-        imagenet_labels = self.synsets_from_txt('snodgrass/synset_words.txt')
-        dataset_labels = self.synsets_from_csv(os.path.join('snodgrass', self.exp + '.csv'))
-        all_hyps = lambda s:s.hyponyms()
-
-        df = pandas.DataFrame.from_dict(dataset_labels)
-        df['imgid'] = ''
-        df['imdnames'] = ''
-        df['kind'] = 'unknown'
-        df['accuracy'] = np.nan
-        for no, dtlab in enumerate(dataset_labels):
-            hypos = set([i for i in dtlab['synset'].closure(all_hyps)])
-            hypos = hypos.union([dtlab['synset']])
-            for imglab in imagenet_labels:
-                if imglab['synset'] in hypos:
-                    df.loc[no, 'imgid'] = imglab['id']
-                    df.loc[no, 'imgnames'] = imglab['names']
-                    if imglab['id'] == df.loc[no, 'id']:
-                        df.loc[no, 'kind'] = 'exact'
-                    else:
-                        df.loc[no, 'kind'] = 'superordinate'
-                    break
-            if compute_acc:
-                for p in preds[no]:
-                    psyn = wn._synset_from_pos_and_offset(p['synset'][0],
-                                                          int(p['synset'][1:]))
-                    # check if the prediction is exact
-                    # or at least more specific than the correct resp
-                    if psyn in hypos:
-                        df.loc[no, 'accuracy'] = True
-                        break
-                else:
-                    if df.loc[no, 'kind'] != 'unknown':
-                        df.loc[no, 'accuracy'] = False
-        return df
 
     def acc_single(self):
         df = self.pred_acc()
@@ -89,6 +52,8 @@ class Snodgrass(base.Base):
         df = df[df.kind!='unknown']
         df.accuracy = df.accuracy.astype(int)
         sns.set_palette(sns.color_palette('Set2')[1:])
+        import pdb; pdb.set_trace()
+        
 
         self._corr(df, 'all')
         self._corr(df[df.kind=='exact'], 'exact')
@@ -123,10 +88,11 @@ class Snodgrass(base.Base):
 
     def behav(self):
         self.model_name = 'behav'
+        sil = pandas.read_csv('snodgrass/sil_human_acc.csv', header=None)
         df = [('color', .903, .169),
               ('gray', .892, .172),
             #   ('line drawing', .882, .171),
-              ('silhouette', .6470, .3976)]
+              ('silhouette', sil.mean(), sil.std(ddof=1))]
         df = pandas.DataFrame(df, columns=['dataset', 'accuracy', 'stdev'])
         n = 260
         ci = df.stdev * 1.96 / np.sqrt(n)
@@ -194,6 +160,37 @@ class Compare(base.Compare):
                         kind='bar', color=self.myexp.colors['shape'])
         sns.plt.ylim([0,1])
         self.show(pref='acc')
+
+        sns.factorplot('dataset', 'accuracy0', 'model', data=df,
+                        kind='bar', color=self.myexp.colors['shape'])
+        sns.plt.ylim([0,1])
+        self.show(pref='acc0')
+
+        cr = []
+        for m1 in df.model.unique():
+            d1 = df[df.model==m1]
+            for s1 in df.dataset.unique():
+                for m2 in df.model.unique():
+                    d2 = df[df.model==m2]
+                    for s2 in df.dataset.unique():
+                        sel = (d1[d1.dataset==s1].accuracy.values -
+                               d2[d2.dataset==s2].accuracy.values)
+                        r = np.nan if m1==m2 and s1==s2 else 1-np.mean(np.abs(sel))
+                        cr.append([m1,s1,m2,s2,r])
+        cr = pandas.DataFrame(cr, columns=['model1', 'dataset1',
+                              'model2', 'dataset2', 'lr'])
+        cr = stats.factorize(cr)
+        crs = cr.set_index(['model1', 'dataset1', 'model2', 'dataset2'])
+        crs = crs.unstack(['model2', 'dataset2'])
+        sns.plt.figure()
+        sns.heatmap(crs)
+        self.show(pref='mcorr')
+
+        if self.myexp.html is not None:
+            self.myexp.html.writetable(crs, caption='accuracy correlation')
+            g = cr.groupby(['dataset1', 'dataset2']).mean()
+            self.myexp.html.writetable(g, caption='mean accuracy correlation')
+
         return df
 
     def _acc(self):

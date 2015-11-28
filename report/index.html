@@ -13,12 +13,236 @@
 <h3>Behavioral</h3>
 <figure>
     <img src="snodgrass/plot_acc_snodgrass_behav.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_behav.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_behav</figcaption>
 </figure>
 <h3>Models</h3>
 <figure>
     <img src="snodgrass/plot_acc_snodgrass_sil_all.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_sil_all.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_sil_all</figcaption>
+</figure>
+<figure>
+    <img src="snodgrass/plot_acc0_snodgrass_sil_all.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc0_snodgrass_sil_all</figcaption>
+</figure>
+<figure>
+    <img src="snodgrass/plot_mcorr_snodgrass_sil_all.svg" />
+    <figcaption><strong>Figure.</strong> plot_mcorr_snodgrass_sil_all</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> accuracy correlation</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th colspan="9" halign="left">lr</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>model2</th>
+      <th colspan="3" halign="left">caffenet</th>
+      <th colspan="3" halign="left">vgg-19</th>
+      <th colspan="3" halign="left">googlenet</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>dataset2</th>
+      <th>color</th>
+      <th>gray</th>
+      <th>silhouette</th>
+      <th>color</th>
+      <th>gray</th>
+      <th>silhouette</th>
+      <th>color</th>
+      <th>gray</th>
+      <th>silhouette</th>
+    </tr>
+    <tr>
+      <th>model1</th>
+      <th>dataset1</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="3" valign="top">caffenet</th>
+      <th>color</th>
+      <td>nan</td>
+      <td>0.830</td>
+      <td>0.551</td>
+      <td>0.789</td>
+      <td>0.755</td>
+      <td>0.531</td>
+      <td>0.796</td>
+      <td>0.762</td>
+      <td>0.544</td>
+    </tr>
+    <tr>
+      <th>gray</th>
+      <td>0.830</td>
+      <td>nan</td>
+      <td>0.544</td>
+      <td>0.755</td>
+      <td>0.789</td>
+      <td>0.524</td>
+      <td>0.680</td>
+      <td>0.782</td>
+      <td>0.524</td>
+    </tr>
+    <tr>
+      <th>silhouette</th>
+      <td>0.551</td>
+      <td>0.544</td>
+      <td>nan</td>
+      <td>0.544</td>
+      <td>0.605</td>
+      <td>0.803</td>
+      <td>0.524</td>
+      <td>0.571</td>
+      <td>0.844</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">vgg-19</th>
+      <th>color</th>
+      <td>0.789</td>
+      <td>0.755</td>
+      <td>0.544</td>
+      <td>nan</td>
+      <td>0.844</td>
+      <td>0.524</td>
+      <td>0.789</td>
+      <td>0.741</td>
+      <td>0.537</td>
+    </tr>
+    <tr>
+      <th>gray</th>
+      <td>0.755</td>
+      <td>0.789</td>
+      <td>0.605</td>
+      <td>0.844</td>
+      <td>nan</td>
+      <td>0.599</td>
+      <td>0.741</td>
+      <td>0.816</td>
+      <td>0.585</td>
+    </tr>
+    <tr>
+      <th>silhouette</th>
+      <td>0.531</td>
+      <td>0.524</td>
+      <td>0.803</td>
+      <td>0.524</td>
+      <td>0.599</td>
+      <td>nan</td>
+      <td>0.476</td>
+      <td>0.469</td>
+      <td>0.837</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">googlenet</th>
+      <th>color</th>
+      <td>0.796</td>
+      <td>0.680</td>
+      <td>0.524</td>
+      <td>0.789</td>
+      <td>0.741</td>
+      <td>0.476</td>
+      <td>nan</td>
+      <td>0.816</td>
+      <td>0.571</td>
+    </tr>
+    <tr>
+      <th>gray</th>
+      <td>0.762</td>
+      <td>0.782</td>
+      <td>0.571</td>
+      <td>0.741</td>
+      <td>0.816</td>
+      <td>0.469</td>
+      <td>0.816</td>
+      <td>nan</td>
+      <td>0.565</td>
+    </tr>
+    <tr>
+      <th>silhouette</th>
+      <td>0.544</td>
+      <td>0.524</td>
+      <td>0.844</td>
+      <td>0.537</td>
+      <td>0.585</td>
+      <td>0.837</td>
+      <td>0.571</td>
+      <td>0.565</td>
+      <td>nan</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> mean accuracy correlation</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>lr</th>
+    </tr>
+    <tr>
+      <th>dataset1</th>
+      <th>dataset2</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="3" valign="top">color</th>
+      <th>color</th>
+      <td>0.791</td>
+    </tr>
+    <tr>
+      <th>gray</th>
+      <td>0.769</td>
+    </tr>
+    <tr>
+      <th>silhouette</th>
+      <td>0.534</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">gray</th>
+      <th>color</th>
+      <td>0.769</td>
+    </tr>
+    <tr>
+      <th>gray</th>
+      <td>0.796</td>
+    </tr>
+    <tr>
+      <th>silhouette</th>
+      <td>0.554</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">silhouette</th>
+      <th>color</th>
+      <td>0.534</td>
+    </tr>
+    <tr>
+      <th>gray</th>
+      <td>0.554</td>
+    </tr>
+    <tr>
+      <th>silhouette</th>
+      <td>0.828</td>
+    </tr>
+  </tbody>
+</table></div>
 </figure>
 <h2>Correlation</h2>
 <figure>
@@ -35,10 +259,10 @@
   <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
 </tr>
 <tr>
-  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.02994</td>
+  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.02994</td>
 </tr>
 <tr>
-  <th>Time:</th>              <td>15:35:17</td>     <th>  Log-Likelihood:    </th> <td> -90.079</td>
+  <th>Time:</th>              <td>18:13:21</td>     <th>  Log-Likelihood:    </th> <td> -90.079</td>
 </tr>
 <tr>
   <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -92.859</td>
@@ -73,10 +297,10 @@
   <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
 </tr>
 <tr>
-  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.01192</td>
+  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.01192</td>
 </tr>
 <tr>
-  <th>Time:</th>              <td>15:35:20</td>     <th>  Log-Likelihood:    </th> <td> -40.399</td>
+  <th>Time:</th>              <td>18:13:24</td>     <th>  Log-Likelihood:    </th> <td> -40.399</td>
 </tr>
 <tr>
   <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -40.886</td>
@@ -111,10 +335,10 @@
   <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
 </tr>
 <tr>
-  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.03663</td>
+  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.03663</td>
 </tr>
 <tr>
-  <th>Time:</th>              <td>15:35:23</td>     <th>  Log-Likelihood:    </th> <td> -88.745</td>
+  <th>Time:</th>              <td>18:13:27</td>     <th>  Log-Likelihood:    </th> <td> -88.745</td>
 </tr>
 <tr>
   <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -92.120</td>
@@ -149,10 +373,10 @@
   <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
 </tr>
 <tr>
-  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th> <td>0.007257</td>
+  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th> <td>0.007257</td>
 </tr>
 <tr>
-  <th>Time:</th>              <td>15:35:26</td>     <th>  Log-Likelihood:    </th> <td> -38.988</td>
+  <th>Time:</th>              <td>18:13:30</td>     <th>  Log-Likelihood:    </th> <td> -38.988</td>
 </tr>
 <tr>
   <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -39.273</td>
@@ -187,10 +411,10 @@
   <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td>  
 </tr>
 <tr>
-  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.09975</td> 
+  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.09975</td> 
 </tr>
 <tr>
-  <th>Time:</th>              <td>15:35:29</td>     <th>  Log-Likelihood:    </th> <td> -88.366</td> 
+  <th>Time:</th>              <td>18:13:34</td>     <th>  Log-Likelihood:    </th> <td> -88.366</td> 
 </tr>
 <tr>
   <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -98.157</td> 
@@ -225,10 +449,10 @@
   <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
 </tr>
 <tr>
-  <th>Date:</th>          <td>Wed, 11 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.1047</td> 
+  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.1047</td> 
 </tr>
 <tr>
-  <th>Time:</th>              <td>15:35:32</td>     <th>  Log-Likelihood:    </th> <td> -37.258</td>
+  <th>Time:</th>              <td>18:13:37</td>     <th>  Log-Likelihood:    </th> <td> -37.258</td>
 </tr>
 <tr>
   <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -41.616</td>
@@ -250,107 +474,50 @@
 </table></figcaption>
 </figure>
 <h1>HOP2008</h1>
-<h2>Clustering</h2>
+<h2>MDS</h2>
 <figure>
-    <img src="hop2008/plot_dis_group_hop2008_hmax99.svg" />
-    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_hmax99.svg</figcaption>
+    <img src="hop2008/plot_mds_hop2008_px.svg" />
+    <figcaption><strong>Figure.</strong> plot_mds_hop2008_px</figcaption>
 </figure>
 <figure>
-    <img src="hop2008/plot_dis_group_hop2008_hmax_hmin.svg" />
-    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_hmax_hmin.svg</figcaption>
+    <img src="hop2008/plot_mds_hop2008_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_mds_hop2008_shape</figcaption>
 </figure>
 <figure>
-    <img src="hop2008/plot_dis_group_hop2008_hmax_pnas.svg" />
-    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_hmax_pnas.svg</figcaption>
-</figure>
-<figure>
-    <img src="hop2008/plot_dis_group_hop2008_caffenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_caffenet.svg</figcaption>
-</figure>
-<figure>
-    <img src="hop2008/plot_dis_group_hop2008_vgg-19.svg" />
-    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_vgg-19.svg</figcaption>
-</figure>
-<figure>
-    <img src="hop2008/plot_dis_group_hop2008_googlenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_dis_group_hop2008_googlenet.svg</figcaption>
-</figure>
-<figure>
-    <img src="hop2008/plot_dis_group_diff_hop2008_all_diff.svg" />
-    <figcaption><strong>Figure.</strong> plot_dis_group_diff_hop2008_all_diff.svg</figcaption>
-</figure>
-<figure>
-    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
-    <div><table border="1" class="dataframe table">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>depth1</th>
-      <th>depth2</th>
-      <th>mean</th>
-      <th>p</th>
-      <th>sig</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>shallow</td>
-      <td>hmax</td>
-      <td>-0.124</td>
-      <td>0.000</td>
-      <td>***</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>shallow</td>
-      <td>deep</td>
-      <td>-0.271</td>
-      <td>0.000</td>
-      <td>***</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>hmax</td>
-      <td>deep</td>
-      <td>-0.147</td>
-      <td>0.001</td>
-      <td>***</td>
-    </tr>
-  </tbody>
-</table></div>
+    <img src="hop2008/plot_mds_hop2008_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_mds_hop2008_googlenet</figcaption>
 </figure>
 <h2>Correlation</h2>
 <figure>
     <img src="hop2008/plot_corr_hop2008_hmax99.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax99.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax99</figcaption>
 </figure>
 <figure>
     <img src="hop2008/plot_corr_hop2008_hmax_hmin.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax_hmin.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax_hmin</figcaption>
 </figure>
 <figure>
     <img src="hop2008/plot_corr_hop2008_hmax_pnas.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax_pnas.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_hmax_pnas</figcaption>
 </figure>
 <figure>
     <img src="hop2008/plot_corr_hop2008_caffenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_hop2008_caffenet.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_caffenet</figcaption>
 </figure>
 <figure>
     <img src="hop2008/plot_corr_hop2008_vgg-19.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_hop2008_vgg-19.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_vgg-19</figcaption>
 </figure>
 <figure>
     <img src="hop2008/plot_corr_hop2008_googlenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_hop2008_googlenet.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_googlenet</figcaption>
 </figure>
 <figure>
     <img src="hop2008/plot_corr_hop2008_all_px.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_hop2008_all_px.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_all_px</figcaption>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
@@ -367,15 +534,15 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.001</td>
-      <td>0.491</td>
+      <td>-0.008</td>
+      <td>0.464</td>
       <td></td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>-0.457</td>
+      <td>-0.523</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -383,7 +550,7 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.458</td>
+      <td>-0.515</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -392,10 +559,10 @@
 </figure>
 <figure>
     <img src="hop2008/plot_corr_hop2008_all_shape.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_hop2008_all_shape.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_hop2008_all_shape</figcaption>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
@@ -412,61 +579,70 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.427</td>
-      <td>0.000</td>
-      <td>***</td>
+      <td>0.454</td>
+      <td>0.002</td>
+      <td>**</td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.308</td>
-      <td>0.000</td>
-      <td>***</td>
+      <td>0.294</td>
+      <td>0.010</td>
+      <td>*</td>
     </tr>
     <tr>
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.119</td>
-      <td>0.055</td>
+      <td>-0.160</td>
+      <td>0.134</td>
       <td></td>
     </tr>
   </tbody>
 </table></div>
 </figure>
 <h1>Fonts</h1>
-<h2>Clustering</h2>
+<h2>MDS</h2>
 <figure>
-    <img src="fonts/plot_clust_fonts_hmax99.svg" />
-    <figcaption><strong>Figure.</strong> plot_clust_fonts_hmax99.svg</figcaption>
+    <img src="fonts/plot_mds_fonts_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_mds_fonts_shape</figcaption>
 </figure>
 <figure>
-    <img src="fonts/plot_clust_fonts_hmax_hmin.svg" />
-    <figcaption><strong>Figure.</strong> plot_clust_fonts_hmax_hmin.svg</figcaption>
+    <img src="fonts/plot_mds_fonts_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_mds_fonts_googlenet</figcaption>
+</figure>
+<h2>Correlation</h2>
+<figure>
+    <img src="fonts/plot_corr_fonts_hmax99.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax99</figcaption>
 </figure>
 <figure>
-    <img src="fonts/plot_clust_fonts_hmax_pnas.svg" />
-    <figcaption><strong>Figure.</strong> plot_clust_fonts_hmax_pnas.svg</figcaption>
+    <img src="fonts/plot_corr_fonts_hmax_hmin.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax_hmin</figcaption>
 </figure>
 <figure>
-    <img src="fonts/plot_clust_fonts_caffenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_clust_fonts_caffenet.svg</figcaption>
+    <img src="fonts/plot_corr_fonts_hmax_pnas.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax_pnas</figcaption>
 </figure>
 <figure>
-    <img src="fonts/plot_clust_fonts_vgg-19.svg" />
-    <figcaption><strong>Figure.</strong> plot_clust_fonts_vgg-19.svg</figcaption>
+    <img src="fonts/plot_corr_fonts_caffenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_caffenet</figcaption>
 </figure>
 <figure>
-    <img src="fonts/plot_clust_fonts_googlenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_clust_fonts_googlenet.svg</figcaption>
+    <img src="fonts/plot_corr_fonts_vgg-19.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_vgg-19</figcaption>
 </figure>
 <figure>
-    <img src="fonts/plot_clust_fonts_all_shape.svg" />
-    <figcaption><strong>Figure.</strong> plot_clust_fonts_all_shape.svg</figcaption>
+    <img src="fonts/plot_corr_fonts_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_googlenet</figcaption>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <img src="fonts/plot_corr_fonts_all_px.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_all_px</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
@@ -483,15 +659,15 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.128</td>
-      <td>0.100</td>
+      <td>0.035</td>
+      <td>0.180</td>
       <td></td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.348</td>
+      <td>-0.369</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -499,44 +675,19 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.219</td>
+      <td>-0.403</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
   </tbody>
 </table></div>
 </figure>
-<h2>Correlation</h2>
-<figure>
-    <img src="fonts/plot_corr_fonts_hmax99.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax99.svg</figcaption>
-</figure>
-<figure>
-    <img src="fonts/plot_corr_fonts_hmax_hmin.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax_hmin.svg</figcaption>
-</figure>
-<figure>
-    <img src="fonts/plot_corr_fonts_hmax_pnas.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_fonts_hmax_pnas.svg</figcaption>
-</figure>
-<figure>
-    <img src="fonts/plot_corr_fonts_caffenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_fonts_caffenet.svg</figcaption>
-</figure>
-<figure>
-    <img src="fonts/plot_corr_fonts_vgg-19.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_fonts_vgg-19.svg</figcaption>
-</figure>
-<figure>
-    <img src="fonts/plot_corr_fonts_googlenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_fonts_googlenet.svg</figcaption>
-</figure>
 <figure>
     <img src="fonts/plot_corr_fonts_all_shape.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_fonts_all_shape.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_fonts_all_shape</figcaption>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
@@ -553,7 +704,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.249</td>
+      <td>0.244</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -561,7 +712,7 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.381</td>
+      <td>0.380</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -569,7 +720,7 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.132</td>
+      <td>0.136</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -580,34 +731,34 @@
 <h2>Accuracy</h2>
 <figure>
     <img src="geons/plot_acc_geons_3d_hmax99.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax99.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax99</figcaption>
 </figure>
 <figure>
     <img src="geons/plot_acc_geons_3d_hmax_hmin.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax_hmin.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax_hmin</figcaption>
 </figure>
 <figure>
     <img src="geons/plot_acc_geons_3d_hmax_pnas.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax_pnas.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax_pnas</figcaption>
 </figure>
 <figure>
     <img src="geons/plot_acc_geons_3d_caffenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_caffenet.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_caffenet</figcaption>
 </figure>
 <figure>
     <img src="geons/plot_acc_geons_3d_vgg-19.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_vgg-19.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_vgg-19</figcaption>
 </figure>
 <figure>
     <img src="geons/plot_acc_geons_3d_googlenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_googlenet.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_googlenet</figcaption>
 </figure>
 <figure>
     <img src="geons/plot_acc_geons_3d_all_nap.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_all_nap.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_all_nap</figcaption>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
@@ -624,15 +775,15 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.140</td>
-      <td>0.024</td>
-      <td>*</td>
+      <td>0.166</td>
+      <td>0.009</td>
+      <td>**</td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.342</td>
+      <td>0.291</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -640,45 +791,55 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.202</td>
-      <td>0.000</td>
-      <td>***</td>
+      <td>0.125</td>
+      <td>0.039</td>
+      <td>*</td>
     </tr>
   </tbody>
 </table></div>
 </figure>
+<figure>
+    <img src="geons/plot_errors_geons_3d_all.svg" />
+    <figcaption><strong>Figure.</strong> plot_errors_geons_3d_all</figcaption>
+</figure>
 <h1>Stefania</h1>
+<h2>MDS</h2>
+<figure>
+    <img src="stefania/plot_mds_stefania_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_mds_stefania_googlenet</figcaption>
+</figure>
 <h2>Correlation</h2>
+<h3>Original stimuli</h3>
 <figure>
     <img src="stefania/plot_corr_stefania_hmax99.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax99.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax99</figcaption>
 </figure>
 <figure>
     <img src="stefania/plot_corr_stefania_hmax_hmin.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax_hmin.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax_hmin</figcaption>
 </figure>
 <figure>
     <img src="stefania/plot_corr_stefania_hmax_pnas.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax_pnas.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_hmax_pnas</figcaption>
 </figure>
 <figure>
     <img src="stefania/plot_corr_stefania_caffenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_stefania_caffenet.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_caffenet</figcaption>
 </figure>
 <figure>
     <img src="stefania/plot_corr_stefania_vgg-19.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_stefania_vgg-19.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_vgg-19</figcaption>
 </figure>
 <figure>
     <img src="stefania/plot_corr_stefania_googlenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_stefania_googlenet.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_googlenet</figcaption>
 </figure>
 <figure>
     <img src="stefania/plot_corr_stefania_all_shape.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_stefania_all_shape.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_all_shape</figcaption>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
@@ -695,7 +856,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.325</td>
+      <td>0.343</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -703,15 +864,15 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.053</td>
-      <td>0.008</td>
+      <td>0.090</td>
+      <td>0.002</td>
       <td>**</td>
     </tr>
     <tr>
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.273</td>
+      <td>-0.253</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -720,10 +881,10 @@
 </figure>
 <figure>
     <img src="stefania/plot_corr_stefania_all_category.svg" />
-    <figcaption><strong>Figure.</strong> plot_corr_stefania_all_category.svg</figcaption>
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_all_category</figcaption>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, ind. samples)</figcaption>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
@@ -740,7 +901,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.239</td>
+      <td>0.247</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -748,7 +909,7 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.295</td>
+      <td>0.290</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -756,9 +917,282 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.056</td>
+      <td>0.043</td>
       <td>0.000</td>
       <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h3>Only in the ImageNet</h3>
+<figure>
+    <img src="stefania/plot_corr_stefania_filt_all_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_filt_all_shape</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.379</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.101</td>
+      <td>0.126</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>-0.278</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_filt_all_category.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_filt_all_category</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.379</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.394</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>0.015</td>
+      <td>0.376</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h3>Silhouettes</h3>
+<figure>
+    <img src="stefania/plot_corr_stefania_sil_all_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_sil_all_shape</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.346</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.089</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>-0.257</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_sil_all_category.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_sil_all_category</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.201</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.241</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>0.039</td>
+      <td>0.001</td>
+      <td>**</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h3>Silhouettes in ImageNet</h3>
+<figure>
+    <img src="stefania/plot_corr_stefania_sil_filt_all_shape.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_sil_filt_all_shape</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.380</td>
+      <td>0.001</td>
+      <td>**</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.097</td>
+      <td>0.046</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>-0.283</td>
+      <td>0.000</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<figure>
+    <img src="stefania/plot_corr_stefania_sil_filt_all_category.svg" />
+    <figcaption><strong>Figure.</strong> plot_corr_stefania_sil_filt_all_category</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth1</th>
+      <th>depth2</th>
+      <th>mean</th>
+      <th>p</th>
+      <th>sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>deep</td>
+      <td>hmax</td>
+      <td>0.207</td>
+      <td>0.012</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>deep</td>
+      <td>shallow</td>
+      <td>0.258</td>
+      <td>0.004</td>
+      <td>**</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hmax</td>
+      <td>shallow</td>
+      <td>0.051</td>
+      <td>0.044</td>
+      <td>*</td>
     </tr>
   </tbody>
 </table></div>
