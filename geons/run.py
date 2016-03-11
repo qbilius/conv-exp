@@ -1,4 +1,9 @@
-import os, sys
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import os, sys, urllib
 from collections import OrderedDict, Counter
 
 import numpy as np
@@ -21,6 +26,17 @@ class Geons(base.Base):
         self.dims = OrderedDict([('nap', [0,1])])
         self.colors = OrderedDict([('nap', base.COLORS[1])])
 
+    def get_images(self):
+        url_root = 'http://geon.usc.edu/~ori/'
+        html = urllib.urlopen(url_root + 'VogelsShaded124.html').read()
+        spl = html.split('src="')
+        path = os.path.join('geons', 'img')
+        if not os.path.isdir(path): os.makedirs(path)
+        print('Downloading images...')
+        for sp in spl[1:]:
+            url = sp.split('"')[0]
+            urllib.urlretrieve(url_root + url, os.path.join(path, os.path.basename(url)))
+
     @base.get_data('nap')
     def dissimilarity(self):
         resps = self.classify()
@@ -30,9 +46,9 @@ class Geons(base.Base):
             for g,i in enumerate(range(0, len(resps), 3)):
                 dis = models.dissimilarity(resps[i:i+3],
                                                       kind='correlation')
-                n = os.path.basename(self.ims[i])[:2]
-                df.append([layer, g, int(n), dims[n], 'non-accidental', dis[1,0]])
-                df.append([layer, g, int(n), dims[n], 'metric', dis[1,2]])
+                n = int(os.path.basename(self.ims[i]).split('os')[0])
+                df.append([layer, g, n, dims[n], 'non-accidental', dis[1,0]])
+                df.append([layer, g, n, dims[n], 'metric', dis[1,2]])
 
         nap = pandas.DataFrame(df,
                             columns=['layer', 'geon', 'fno', 'dimension', 'kind', 'dist'])
@@ -138,7 +154,10 @@ class Geons(base.Base):
     def get_dims(self):
         with open('geons/data/dimensions.csv', 'rb') as f:
             lines = f.readlines()
-        dims = dict([l.strip('\n').split(',') for l in lines])
+        dims = {}
+        for l in lines:
+            spl = l.strip('\n').split(',')
+            dims[int(spl[0])] = spl[1]
         return dims
 
     def remake_amir2012(self):
@@ -210,7 +229,7 @@ class Compare(base.Compare):
 
 def report(**kwargs):
     html = kwargs['html']
-    kwargs['subset'] = '3d'
+    # kwargs['subset'] = '3d'
     html.writeh('Geons', h='h1')
 
     html.writeh('Accuracy', h='h2')
@@ -227,7 +246,7 @@ def report(**kwargs):
     kwargs['layers'] = 'output'
     kwargs['task'] = 'compare'
     kwargs['force'] = False
-    kwargs['forceresps'] = False
+    kwargs['forcemodels'] = False
     myexp = Geons(**kwargs)
     Compare(myexp).accuracy()
     Compare(myexp).errors()

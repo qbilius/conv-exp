@@ -1,30 +1,24 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import argparse, sys, os
 import numpy as np
+
+import matplotlib
+matplotlib.use('Agg')  # making sure plotting works on clusters
 import seaborn as sns
 
-sys.path.insert(0, '/home/lbp/libs/psychopy_ext')
-from psychopy_ext import models, stats, plot, report
 import base
 
 np.random.seed(0)
 
-# detect all datasets
-# datasets = {}
-# for root, folders, files in os.walk('.'):
-#     if root[-3:] == 'img':
-#         droot = root.replace('\\', '/').split('/')[1]
-#         if len(folders) == 0:
-#             datasets[droot] = root
-#         else:
-#             for folder in folders:
-#                 dname = '_'.join([droot, folder])
-#                 datasets[dname] = os.path.join(root, folder)
-
-
-datasets = [d for d in os.listdir('.') if os.path.isdir(d)] + ['report']
+global_tasks = ['report', 'download_datasets', 'download_models', 'compute_features']
+datasets = set([d for d in os.listdir('.') if os.path.isdir(d) and d != '.git'] + global_tasks)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('exp', choices=datasets)
+parser.add_argument('exp', choices=datasets, help='Choose which dataset to use')
 parser.add_argument('task', nargs='?', choices=['run', 'compare', 'report'], default='run')
 parser.add_argument('func', nargs='?', default='run')
 parser.add_argument('--subset')
@@ -36,13 +30,13 @@ parser.add_argument('-d', '--dry', action='store_true')
 parser.add_argument('--savefig', default='', choices=['svg','png'])
 # parser.add_argument('--saveresps', action='store_true')
 parser.add_argument('-f', '--force', action='store_true')
-parser.add_argument('--forceresps', action='store_true')
+parser.add_argument('--forcemodels', action='store_true')
 parser.add_argument('--filter', action='store_true')
-parser.add_argument('--mode', default='gpu')
+parser.add_argument('--mode', default='gpu', help='Caffe mode: cpu or gpu (default)')
 parser.add_argument('-c', '--context', default='paper',
                     choices=['paper', 'notebook', 'talk', 'poster'])
-parser.add_argument('-b', '--bootstrap', action='store_true')
-parser.add_argument('--dissim', default='correlation')
+parser.add_argument('-b', '--bootstrap', action='store_true', help='Whether you want to bootstrap (no flag means false).')
+parser.add_argument('--dissim', default='correlation', help='Dissimilarity metric (default: correlation)')
 args = parser.parse_args()
 
 sns.set_context(args.context)
@@ -60,11 +54,11 @@ else:
         if not isinstance(layers, (tuple, list)):
             layers = args.layers
 
-if args.exp in ['geons'] and args.subset is None and args.task != 'report':
-    raise Exception('For geons dataset you must choose a subset '
-                    'using the --subset flag.')
+# if args.exp in ['geons'] and args.subset is None and args.task != 'report':
+#     raise Exception('For geons dataset you must choose a subset '
+#                     'using the --subset flag.')
 
-if args.forceresps: args.force = True
+if args.forcemodels: args.force = True
 
 kwargs = {'exp': args.exp,
           'task': args.task,
@@ -76,7 +70,7 @@ kwargs = {'exp': args.exp,
           'mode': args.mode,
           'savedata': not args.dry,
           'force': args.force,
-          'forceresps': args.forceresps,
+          'forcemodels': args.forcemodels,
           'filter': args.filter,
           'savefig': args.savefig,
           'report': False,
@@ -84,39 +78,8 @@ kwargs = {'exp': args.exp,
           'html': None,
           'dissim': args.dissim}
 
-if args.exp == 'report':
-    kwargs['task'] = 'report'
+if args.exp in global_tasks:
+    kwargs['task'] = args.exp
     base.run(**kwargs)
 else:
     base.run(**kwargs)
-#elif args.task == 'run':
-#    m = base2.Base(**kwargs)
-#    getattr(m, args.func)()
-
-# def run(args, **kwargs):
-#     path = os.path.dirname(os.path.abspath(__file__))
-#     print path
-#     os.chdir(os.path.join(path, kwargs['dataset']))
-#     mod = __import__(kwargs['dataset'] + '.run')
-#
-#     if args.task in ['run', 'compare']:
-#         getattr(mod.run, 'run')(**kwargs)
-#     else:
-#         getattr(mod.run, args.func)(**kwargs)
-#
-#
-# if kwargs['dataset'] == 'report':
-#     kwargs['task'] = 'compare'
-#     kwargs['func'] = 'report'
-#     html, kwargs = base.html(kwargs, path='report/')
-#     html.open()
-#     for exp in ['fonts']:#['snodgrass', 'hop2008', 'fonts', 'geons', 'stefania']:
-#         html.writeh(exp, h='h1')
-#         os.chdir(exp)
-#         kwargs['dataset'] = exp
-#         mod = __import__(exp + '.run')
-#         getattr(mod.run, 'report')(**kwargs)
-#     html.close()
-#
-# else:
-#     run(args, **kwargs)

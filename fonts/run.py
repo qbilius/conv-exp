@@ -1,4 +1,5 @@
 import sys, os, glob
+import subprocess, string
 import cPickle as pickle
 from collections import OrderedDict
 
@@ -8,8 +9,7 @@ import pandas
 import seaborn as sns
 import sklearn.cluster, sklearn.metrics
 
-sys.path.insert(0, '../../psychopy_ext')
-from psychopy_ext import models, stats
+from psychopy_ext import utils
 
 import base
 
@@ -22,12 +22,58 @@ class Fonts(base.Base):
         self.kwargs = kwargs
         self.dims = OrderedDict([('px', np.repeat(range(6),6)),
                                  ('shape', np.repeat(range(6),6))])
-        # self.colors = OrderedDict([('shape', base.COLORS[1])])
         self.colors = OrderedDict([('px', base.COLORS[0]),
                                    ('shape', base.COLORS[1])])
 
+    def get_images(self):
+        """
+        Font descriptions:
+        - http://www.omniglot.com/conscripts/arcadian.php
+        - http://www.omniglot.com/conscripts/atlantean.htm
+        - http://www.omniglot.com/conscripts/dovahzul.htm
+        - http://www.omniglot.com/conscripts/futurama.htm
+        - http://www.omniglot.com/conscripts/hymmnos.htm
+        - http://www.omniglot.com/conscripts/ulog.php
+        """
+        urls = [('arcadian', 'http://arcadia.island.free.fr/down/police.zip'),
+                ('atlantean', 'http://www.disneyexperience.com/downloads/fonts/atlantisfont.zip'),
+                ('dovahzul', 'http://dl.1001fonts.com/dragon-alphabet.zip'),
+                ('futurama', 'ftp://slurmed.com/incoming/tfp/fonts/alien_alphabet_1_font.zip'),
+                ('hymmnos', 'http://www.ffonts.net/Hymmnos.font.zip'),
+                ('ulog', 'http://www.omniglot.com/fonts/ulog.zip')]
+        path = 'fonts/data/fonts/'
+        if not os.path.isdir(path): os.makedirs(path)
+        fpaths = []
+        for name, url in urls:
+            fnames = super(Fonts, self).download_dataset(url, path=path, ext='.ttf')
+            for old_path in fnames:
+                if os.path.splitext(old_path)[1] == '.ttf':
+                    new_path = os.path.join(path, name + '.ttf')
+                    os.rename(old_path, new_path)
+                    self._gen_letters(new_path)
+
+    def _gen_letters(self, font_path):
+        sizes = {'arcadian': 500, 'atlantean': 400, 'dovahzul': 400,
+                 'futurama': 500, 'hymmnos': 400, 'ulog': 1000}
+        cmd = ('convert -font {} -pointsize {} -background {} '
+               'label:{} -trim '
+               '-gravity center -extent 512x512 -resize 256x256 {}')
+        path1 = os.path.join('fonts', 'img')
+        path2 = os.path.join('fonts', 'img', 'alpha')
+        if not os.path.isdir(path1): os.makedirs(path1)
+        if not os.path.isdir(path2): os.makedirs(path2)
+        for bckg in ['white', 'none']:
+            fontname = os.path.basename(font_path).split('.')[0]
+            for letter in string.ascii_lowercase[:6]:
+                name = fontname + '_' + letter + '.png'
+                if bckg == 'white':
+                    newname = os.path.join(path1, name)
+                else:
+                    newname = os.path.join(path2, name)
+                subprocess.call(cmd.format(font_path, sizes[fontname], bckg, letter, newname).split())
+
     def behav(self):
-        dfiles = glob.glob('fonts/multipleArrangements/results/fonts_*_2015*.mat')
+        dfiles = glob.glob('fonts/data/fonts_*_2015*.mat')
         n = self.dims['shape'].size
         inds = np.triu_indices(n, k=1)
         data = np.ones((len(dfiles), n, n)) * np.nan
@@ -35,8 +81,15 @@ class Fonts(base.Base):
         for i,d in enumerate(dfiles):
             data[i][inds] = scipy.io.loadmat(d)['estimate_dissimMat_ltv']
             data[i].T[inds] = data[i][inds]
+
         behav = OrderedDict([('shape', data)])
-        self.save(behav, 'behav')
+        path = os.path.join('fonts', 'data')
+        name =  'dis_fonts_shape.pkl'
+        name = os.path.join(path, name)
+        if self.savedata:
+            if not os.path.isdir(path): os.makedirs(path)
+            pickle.dump(behav, open(name, 'wb'))
+            base.msg('saved to', name)
 
     def cluster_behav(self):
         """
@@ -57,33 +110,10 @@ class Fonts(base.Base):
         icons = []
         ims = sorted(glob.glob('fonts/img/alpha/*.png'))
         for i,c in enumerate(self.dims['shape']):
-            icon = models.load_image(ims[i], keep_alpha=True)
-            # import pdb; pdb.set_trace()
-
+            icon = utils.load_image(ims[i], keep_alpha=True)
             icon[:,:,:3][icon[:,:,3]>0] = colors[c][0], colors[c][1], colors[c][2]
-            # for j in range(3):
-            #     icon[:,:,j][icon[:,:,j]<.5] = colors[c][j]
             icons.append(icon)
         super(Fonts, self).mds(icons=icons, seed=0, zoom=.2)
-
-    def gen_letters(self):
-        import subprocess, string
-        fonts = sorted(glob.glob('fonts/data/fonts/*.ttf'))
-        sizes = {'arcadian': 500, 'atlantean': 400, 'dovahzul': 400,
-                 'futurama': 500, 'hymmnos': 400, 'ulog': 1000}
-        cmd = ('convert -font {} -pointsize {} -background {} '
-               'label:{} -trim '
-               '-gravity center -extent 512x512 -resize 256x256 {}')
-        for bckg in ['white', 'none']:
-            for font in fonts:
-                fontname = os.path.basename(font).split('.')[0]
-                for letter in string.ascii_lowercase[:6]:
-                    name = fontname + '_' + letter + '.png'
-                    if bckg == 'white':
-                        newname = os.path.join('fonts', 'img', name)
-                    else:
-                        newname = os.path.join('fonts', 'img', 'alpha', name)
-                    subprocess.call(cmd.format(font, sizes[fontname], bckg, letter, newname).split())
 
 
 class Compare(base.Compare):
@@ -91,9 +121,6 @@ class Compare(base.Compare):
         super(Compare, self).__init__(*args)
 
     def cluster(self):
-        # self.myexp.savedata = False
-        # force = myexp.force
-        # self.myexp.force = True
         self.myexp.bootstrap = True
         return self.compare(pref='clust')
 
@@ -142,6 +169,6 @@ def report(**kwargs):
     kwargs['layers'] = 'output'
     kwargs['task'] = 'compare'
     kwargs['force'] = False
-    kwargs['forceresps'] = False
+    kwargs['forcemodels'] = False
     myexp = Fonts(**kwargs)
     Compare(myexp).corr()

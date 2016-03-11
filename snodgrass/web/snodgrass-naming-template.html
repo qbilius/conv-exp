@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Object Identification</title>
+
+<style>
+    body { margin:0; padding: 0; font-family: 'trebuchet ms', trebuchet, verdana }
+    div,pre { margin:0; padding:0 }
+    h2 { margin: 20px 0 5px 0; padding: 0 }
+    p.intro { margin: 0; padding: 15px; background: #eee; font-size: small; }
+    .thumbs { position: absolute; width: 100px; height: 100px;}
+    div.thumb { position:absolute; float:left; padding: 1px; width: 64px; height: 64px;}
+    div.thumb img { border: 2px solid white; width:64px; height:64px; }
+    div#tutorial { position:relative; background-color: white; padding: 10px; font-size: 16px;}
+    div#tutorial ul li {padding: 5px 0;}
+    div#systemmsg { position:relative; background-color: white; padding: 10px; }
+</style>
+
+<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://dicarlo-lab.scripts.mit.edu/srv/ip.php"></script>
+<script type="text/javascript" src="https://s3.amazonaws.com/dlcommon/js/zen-0.0.2.js"></script>
+<script type="text/javascript" src="https://s3.amazonaws.com/dlcommon/js/detect-zoom-20120627.js"></script>
+<script type="text/javascript" src="dltk.js"></script>
+<script type="text/javascript" src="dltkexpr.js"></script>
+<script type="text/javascript" src="dltkrsvp.js"></script>
+<script type="text/javascript">
+// -- jshint directives.  DO NOT REMOVE THE FOLLOWING COMMENTS
+/* global $, user_IP, dltk, DetectZoom, winH: true, winW: true, vertical: true, horizontal: true */
+
+// -- Experimental variables
+var ExperimentData = null;
+var trialSpecs = [];
+var imgFiles = [];
+var totalTrials;
+var trialNumber;
+var responseKeys = null;    // left and right reponse keys
+// how long test samples should remain on screen after response
+var respScreenWait = 0;
+var subjResp = null;
+
+var exp = null;             // the main Experiment object
+var exp_type = 'naming';
+var maxHeightInThisExp = 450;
+var zoom;
+var aID;
+var extInfo = {language: navigator.language, userAgent: navigator.userAgent};
+
+var expLoadTime = new Date();
+var trialStartTime, trialEndTime, trialStartTimes = [];
+var response = [];
+var trialDurations = [];
+var measuredISI1 = [];
+var measuredStimDur = [];
+var measuredISI2 = [];
+var stimDone = [];
+
+var l_full_history = [], l_full_history_delta = [];
+var _hist, _hist_delta;
+
+var callable = dltk.callable;
+var defined = dltk.defined;
+var setDebugMessage = dltk.setDebugMessage;
+
+function FreeChoice(_$, optdct) {
+    /**********************************************************************
+     This is a module class that provides the "standard" RSVP
+     sample-and-test experimental paradigm. This uses the new dltk graphics
+     framework and delivers much more precise presentation time control.
+     As a module, this is designed to be used with dltk.Experiment; i.e.,
+     not to be used called directly by the user.
+
+     Parameters:
+     - _$: a reference to jquery
+     - optdct: dictionary that contains options for this RSVP module.
+       See ``OPTDCT_DEFAULT`` below for deails.
+       (Better documentation TBD)
+
+     Note: storing any other part of the calling Experiment object is
+     discouraged because it can result in difficult-to-manage code.
+     **********************************************************************/
+
+    // -- Default constants
+    var MSG_TRIAL_PROGRESS = 'Progress:<br /> ${CURRENT} of ${TOTAL}';
+    var IMG_FIXATION = 'https://s3.amazonaws.com/task_images/fixation_360x360.png';
+    var IMG_BLANK = 'https://s3.amazonaws.com/task_images/blank_360x360.png';
+
+    var OPTDCT_DEFAULT = {
+        /******* basic setup vars **********/
+        elemSample: null, elemTest: null,   // html elems that fully contain sample and test stuffs respectively
+        elemSampleCanvasID: null,  // canvas id to which the RSVP stimuli will be painted on. do not prepend #
+        // elemTestCanvasIDs: null,   // canvas ids for ans choices. must match the shape of spec.Test. dont prepend #
+        elemTestClickables: null,  // elements that will be made clickable to receive answers
+        elemTrialCounter: null,
+        elemRespInput: null,
+        /******** callback functions: these MUST be short to run (ideally less than 2ms) ***********/
+        // all of the following drawing related callbacks (onPreXXX, onPostXXX)
+        // MUST be short to execute (ideally less than few ms)
+        onPreISI1Default: '_onPreISI1Default',   // pass null to disable this
+        onPreISI1: null,
+        onPostISI1: null,
+        onPreStim: null,
+        onPostStim: null,
+        onPreISI2: null,
+        onPostISI2: null,
+        onPreDrawResponseDefault: '_onPreDrawResponseDefault',   // pass null to disable this
+        onPreDrawResponse: null,
+        onPostDrawResponse: null,
+        // other task related callbacks
+        onResponseReadyAsync: null,
+        onResponseReady: null,
+        onClickedTestBtnAsync: null,
+        onClickedTestBtn: null,
+        // the followings are called by Experiment
+        onPreloadRsrcsAsyncDefault: '_onPreloadRsrcsAsyncDefault',  // pass null to disable this
+        onPreloadRsrcsAsync: null,
+        onBeginExpDefault: '_onBeginExpDefault',                    // pass null to disable this
+        onBeginExp: null,
+        onRunNextTrialAsyncDefault: '_onRunNextTrialAsyncDefault',  // pass null to disable this
+        onRunNextTrialAsync: null,
+        /******** other options ***********/
+        useLocalTrialNumbersForDisplay: true,  // use local trial numbers for display purposes? (e.g., trial progress)
+        stopClockBeforeSample: true,
+        startClockAfterSample: true,
+        optdctQueueTrial: {},      // options to be passed to dltk.queueTrial(), except rsrcs -- see init()
+        /******** text constants **********/
+        msgTrialProgress: MSG_TRIAL_PROGRESS,
+        imgFixation: IMG_FIXATION,
+        imgBlank: IMG_BLANK,
+        responseKeys: null,      // if not null, keyboard will be used to record a response instead of mouse
+    };
+
+    // -- Private variables
+    var that = this;
+    var primed = false;
+    var testing_period = false;   // buttons are only responsive during the testing period
+
+    // -- Public variables
+    var o = dltk.applyDefaults(optdct, OPTDCT_DEFAULT);
+    this.o = o;            // Make this public in case for overriding
+    this.__optdct__ = o;   // This is required by Experiment
+
+    this.ctx_sample_on = null;
+    this.ctxs_test_on = [];
+    this.rsrcs = {};       // preloaded resources goes to here, not to the dltk.preloaded_rsrcs
+
+    this.currentTrialInfo = null;   // current trial info
+
+
+    // -- Methods that form fundamentals of this class.  USERS DO NOT CALL THESE DIRECTLY.
+    // -- They are public ONLY in order to make them overridable.
+    this._callCallbackFunctionsSyncOnly = function _callCallbackFunctionsSyncOnly(name, argdct) {
+        return dltk._callCallbackFunctionsSyncOnly([o], true, name, argdct);
+    };
+    this._callCallbackFunctions = function _callCallbackFunctions(name, argdct, onFinish) {
+        return dltk._callCallbackFunctions([o], true, name, argdct, onFinish);
+    };
+
+    this._getPreloadProgressText = function _getPreloadProgressText(argdct) {
+        var progress = argdct.progress, total = argdct.total;
+        var msg = "<font color=red style=background-color:white><b>Processing resources: " +
+            progress + "/" + total + "</b></font>";
+        return msg;
+    };
+
+    this.__argdct_ui__ = {};
+    this._preISI1 = function _preISI1() {
+        that._callCallbackFunctionsSyncOnly('onPreISI1', that.__argdct_ui__);
+    };
+    this._postISI1 = function _postISI1() {
+        that._callCallbackFunctionsSyncOnly('onPostISI1', that.__argdct_ui__);
+    };
+    this._preStim = function _preStim() {
+        that._callCallbackFunctionsSyncOnly('onPreStim', that.__argdct_ui__);
+    };
+    this._postStim = function _postStim() {
+        that._callCallbackFunctionsSyncOnly('onPostStim', that.__argdct_ui__);
+    };
+    this._preISI2 = function _preISI2() {
+        that._callCallbackFunctionsSyncOnly('onPreISI2', that.__argdct_ui__);
+    };
+    this._postISI2 = function _postISI2() {
+        that._callCallbackFunctionsSyncOnly('onPostISI2', that.__argdct_ui__);
+    };
+    this._preDrawResponse = function _preDrawResponse() {
+        that._callCallbackFunctionsSyncOnly('onPreDrawResponse', that.__argdct_ui__);
+    };
+    this._postDrawResponse = function _postDrawResponse() {
+        that._callCallbackFunctionsSyncOnly('onPostDrawResponse', that.__argdct_ui__);
+    };
+
+    this._getRSVPTrialSpecs = function _getRSVPTrialSpecs(argdct) {
+        // Returns a spec for "standard" RSVP tasks
+        var trial_specs = [];
+        var ctx_sample_on = that.ctx_sample_on;
+        var ctxs_test_on = that.ctxs_test_on;
+        var c = argdct.trialInfo;
+        if (typeof(c.ISI1) === 'undefined') {
+            // backward compatibility when only a single ISI is defined
+            var ISI1 = c.ISI;
+            var ISI2 = c.ISI;
+        }
+        else {
+            var ISI1 = c.ISI1;
+            var ISI2 = c.ISI2;
+        }
+        var stimdur = c.SampleDuration;
+        var sampleURL = c.Sample;
+        // var testURLs = c.Test;
+
+        that.__argdct_ui__ = {ctx_sample_on: ctx_sample_on, ctxs_test_on: ctxs_test_on,
+            trialInfo: c};
+
+        // ISI 1 fixation dot
+        trial_specs.push({
+            urls: [o.imgFixation],
+            contexts: [ctx_sample_on],
+            duration: ISI1,
+            pre: that._preISI1,    // this MUST be short to run
+            post: that._postISI1   // this MUST be short to run
+        });
+        // sample stimulus
+        trial_specs.push({
+            urls: [sampleURL],
+            contexts: [ctx_sample_on],
+            duration: stimdur,
+            pre: that._preStim,    // this MUST be short to run
+            post: that._postStim   // this MUST be short to run
+        });
+        // ISI 2 blank
+        trial_specs.push({
+            urls: [o.imgBlank],
+            contexts: [ctx_sample_on],
+            duration: ISI2,
+            pre: that._preISI2,    // this MUST be short to run
+            post: that._postISI2   // this MUST be short to run
+        });
+        // response images
+        trial_specs.push({
+            urls: [o.imgBlank],
+            contexts: [ctx_sample_on],
+            duration: 0,              // immediately proceed to callback after paint
+            pre: that._preDrawResponse,    // this MUST be short to run
+            post: that._postDrawResponse   // this MUST be short to run
+        });
+        return trial_specs;
+    };
+
+    this._getTimingAnalysisResults = function _getTimingAnalysisResults(hist, hist_delta, hist_delta_flush) {
+        var t_spent = dltk.getTimeSpent(hist);
+        var t_ISI1 = dltk.round2(t_spent[1]);
+        var t_stim = dltk.round2(t_spent[2]);
+        var t_ISI2 = dltk.round2(t_spent[3]);
+        var hist_extract = dltk.getTimingHistoryExcerpt(hist, 'diff');
+        var hist_delta_extract = dltk.getTimingHistoryExcerpt(hist_delta, 'diffeach');
+        var diag = 'ISI1, stimon, ISI2 = ' + String(t_ISI1) + ', ' + String(t_stim) + ', ' + String(t_ISI2);
+        return {
+            t_ISI1: t_ISI1, t_stim: t_stim, t_ISI2: t_ISI2, t_spent_all: t_spent,
+            hist_extract: hist_extract, hist_delta_extract: hist_delta_extract,
+            hist: hist, hist_delta: hist_delta, hist_delta_flush: hist_delta_flush,
+            __diag_msg__: diag,
+        };
+    };
+
+    this._runTrialOnce = function _runTrialOnce(argdct) {
+        if (o.stopClockBeforeSample) argdct.stopClock();   // stop to minimize display burden
+
+        // Queue experiment
+        dltk.queueTrial(that._getRSVPTrialSpecs(argdct),     // this function returns the rendering specs
+            function(hist, hist_delta, hist_delta_flush) {
+                // now response images are up
+                var trialStartTime = new Date();
+                setTimeout(function() {
+                    // schedule all less time critical jobs later here
+                    if (o.startClockAfterSample) argdct.startClock();
+
+                    var argdct_timing = that._getTimingAnalysisResults(hist, hist_delta, hist_delta_flush);
+                    argdct_timing.trialStartTime = trialStartTime;
+                    that._callCallbackFunctions('onResponseReady', argdct_timing, argdct.finished);
+                    // MUST call this to avoid experiment hang -------------------^
+
+                    // GC
+                    hist = null;
+                    hist_delta = null;
+                    hist_delta_flush = null;
+                    trialStartTime = null;
+                    argdct = null;
+                    dltk.setDebugMessage(argdct_timing.__diag_msg__);
+                }, 0);
+            },
+            o.optdctQueueTrial
+        );
+    };
+
+    this._primeSystemAndRunTrialOnce = function _primeSystemAndRunTrialOnce(argdct) {
+        // Prime the browser by running a single blank trial
+        var trial_specs = [];
+        var ctx_sample_on = that.ctx_sample_on;
+        var ctxs_test_on = that.ctxs_test_on;
+
+        if (o.stopClockBeforeSample) argdct.stopClock();   // stop to minimize display burden
+
+        that.__argdct_ui__ = {ctx_sample_on: ctx_sample_on, ctxs_test_on: ctxs_test_on,
+            trialInfo: argdct.trialInfo};
+
+        // blank
+        trial_specs.push({
+            urls: [o.imgBlank],
+            contexts: [ctx_sample_on],
+            duration: 50,
+            pre: that._preISI1,    // this MUST be short to run
+            //post: _postISI1   // this MUST be short to run
+        });
+        // another blank
+        trial_specs.push({
+            urls: [o.imgBlank],
+            contexts: [ctx_sample_on],
+            duration: 50,
+            //pre: _preStim,    // this MUST be short to run
+            //post: _postStim   // this MUST be short to run
+        });
+        // yet another blank
+        trial_specs.push({
+            urls: [o.imgBlank],
+            contexts: [ctx_sample_on],
+            duration: 50,
+            //pre: _preISI2,    // this MUST be short to run
+            //post: _postISI2   // this MUST be short to run
+        });
+
+        // Queue experiment
+        dltk.queueTrial(trial_specs,
+            function() {
+                setTimeout(function() {
+                    // by now, the system has been primed.  Proceed to actual experiment.
+                    primed = true;
+                    that._runTrialOnce(argdct);
+                    dltk.setDebugMessage('Primed.');
+                    argdct = null;   // GC stuff
+                }, 0);
+            },
+            o.optdctQueueTrial
+        );
+    };
+
+    this._safeRunTrialOnce = function _safeRunTrialOnce(argdct) {
+        // This tries to ensure most optimal system performance by priming it when necessary
+        if (!primed) that._primeSystemAndRunTrialOnce(argdct);
+        else that._runTrialOnce(argdct);
+    };
+
+    this._clickedTestBtn = function _clickedTestBtn(inputResponse) {
+        // Called when the turker clicks one of the test (answer) buttons
+        var trialInfo, trialEndTime, res;
+        testing_period = false;    // disable buttons until next testing period
+        trialInfo = that.getCurrentTrialInfo();
+        trialEndTime = new Date();
+        res = dltk.copydct(trialInfo);
+        res.trialEndTime = trialEndTime;
+        res.btnClickTime = trialEndTime;   // for clarity
+        res.inputResponse = inputResponse;
+        res.localTrialNumber = that.getCurrentTrialNumber(true);
+        res.localTotalTrialNumber = that.getTotalTrialNumber(true);
+
+        that._callCallbackFunctions('onClickedTestBtn', res);
+    };
+
+
+    // -- Default callback functions: they will be attached inside ``this.o`` during init().
+    // -- These are NOT meant to be called directly
+    this._onPreISI1Default = function _onPreISI1Default() {
+        that.$elemTest.hide();
+        that.$elemSample.show();
+        // window.scrollTo(0, 0); // this causes suboptimal performance (forced sync)
+    };
+
+    this._onPreDrawResponseDefault = function _onPreDrawResponseDefault() {
+        var msg = o.msgTrialProgress;
+        var lclNumbers = o.useLocalTrialNumbersForDisplay;
+        msg = msg.replace('${CURRENT}', String(that.getCurrentTrialNumber(lclNumbers) + 1));
+        msg = msg.replace('${TOTAL}', String(that.getTotalTrialNumber(lclNumbers)));
+        that.$elemTrialCounter.html(msg);
+        that.$elemTest.show();
+        that.$elemSample.hide();
+        that.$elemRespInput.focus()
+        testing_period = true;   // buttons are now responsive
+    };
+
+    this._getContextsWithMatchingShape = function _getContextsWithMatchingShape() {
+        // This returns the list of on-screen contexts that has the same shape
+        // as that of an element in trialSpec.  This is provided mainly for overriding.
+        return [that.ctx_sample_on];//, that.ctxs_test_on];
+    };
+
+    this._getImgFilesForPreloading = function _getImgFilesForPreloading() {
+        // This returns an old-style imgFiles equivalent.  This must match the shape of
+        // _getContextsWithMatchingShape()
+        var imgFiles = [];  // old-style imgFiles equivalent
+        var rsrcsTrialSpecs = o.__Experiment__.rsrcsTrialSpecs;
+        var l = rsrcsTrialSpecs.length;
+
+        for (var i = 0; i < l; i++) {
+            var elem = [];
+            elem.push(rsrcsTrialSpecs[i].Sample);
+            // elem.push(rsrcsTrialSpecs[i].Test);
+            imgFiles.push(elem);
+        }
+        return imgFiles;
+    };
+
+    this._onPreloadRsrcsAsyncDefault = function _onPreloadRsrcsAsyncDefault(argdct) {
+        // Preload resources.
+        // This will be called when the system passes benchmark successfully by the Experiment object.
+        // NOTE: This function MUST call argdct.finished() after loading all resources.  Otherwise,
+        // the experiment will hang.
+        var ctx_sample_on = that.ctx_sample_on;
+
+        // load response options
+        var word_list = $.ajax({
+                    url: "snodgrass_synonyms.txt",
+                    async: false
+                }).responseText;
+        exp.word_list = word_list.split("\n");
+        exp.word_list_lower = [];
+        for (var i = 0; i < exp.word_list.length; i++) {
+            exp.word_list_lower.push(exp.word_list[i].toLowerCase());
+        };
+
+        // load fixation dot and blank image first...
+        dltk.prepareResources(
+            [[o.imgFixation, []], [o.imgBlank, []]], [ctx_sample_on, []],
+            function() {
+                // ...then load trial images
+                dltk.prepareResources(
+                    that._getImgFilesForPreloading(),
+                    that._getContextsWithMatchingShape(),
+                    argdct.finished,    // MUST call this when successfully proloaded all resources
+                    function (progress, total) {
+                        var argdct2 = {progress: progress, total: total, msg: ''};
+                        var msg = that._getPreloadProgressText(argdct2);
+                        dltk._$$$(_$, argdct.elemPreload).html(msg);
+                    },
+                    {rsrcs: that.rsrcs}
+                );
+            },
+            null,    // no progress update here
+            {rsrcs: that.rsrcs});
+        // Note: no need to call zen.preload() anymore
+    };
+
+    this._onBeginExpDefault = function _onBeginExpDefault() {
+        var make_handler = function make_handler() {
+            return function () {
+                if (testing_period) {
+                    var inputResponse = that.$elemRespInput.val().toLowerCase();
+                    var idx = $.inArray(inputResponse, exp.word_list_lower);
+                    if (idx >= 0) inputResponse = exp.word_list[idx];
+                    that._clickedTestBtn(inputResponse);
+                    that.$elemRespInput.val('');
+                    that.$elemTestClickables.prop('disabled', true);
+                }
+            };
+        };
+        that.$elemTestClickables.click(make_handler());
+    };
+
+    this._onRunNextTrialAsyncDefault = function _onRunNextTrialAsyncDefault (argdct) {
+        // This is called by Experiment object to procced to the next trial
+        // Since this is an async function, argdct.finished() must be called upon successful
+        // completion of rendering of this trial.  This is internally done inside _runTrialOnce()
+        that.currentTrialInfo = argdct.trialInfo;
+        that._safeRunTrialOnce(argdct);
+    };
+
+
+    // -- Public methods
+    this.init = function init() {
+        // Initialize various RSVP related stuffs
+        var i, rsrcsTrialSpecs;
+
+        rsrcsTrialSpecs = o.__Experiment__.rsrcsTrialSpecs;
+        for (i = 0; i < rsrcsTrialSpecs.length; i++) {
+            if (typeof(rsrcsTrialSpecs[i].Sample) != 'string') {
+                setDebugMessage('init: illegal "Sample" at ' + String(i));
+                return false;
+            }
+            if (typeof(rsrcsTrialSpecs[i].SampleDuration) != 'number') {
+                setDebugMessage('init: illegal "SampleDuration" at ' + String(i));
+                return false;
+            }
+            if (typeof(rsrcsTrialSpecs[i].ISI1) === 'undefined') {
+                if (typeof(rsrcsTrialSpecs[i].ISI) != 'number') {
+                    setDebugMessage('init: illegal "ISI" at ' + String(i));
+                    return false;
+                }
+            }
+            else {
+                if (typeof(rsrcsTrialSpecs[i].ISI1) != 'number') {
+                    setDebugMessage('init: illegal "ISI1" at ' + String(i));
+                    return false;
+                }
+                if (typeof(rsrcsTrialSpecs[i].ISI2) != 'number') {
+                    setDebugMessage('init: illegal "ISI2" at ' + String(i));
+                    return false;
+                }
+            }
+        }
+
+        // -- ok to go
+        that.$elemSample = dltk._$$$(_$, o.elemSample);
+        that.$elemTest = dltk._$$$(_$, o.elemTest);
+        that.$elemTrialCounter = dltk._$$$(_$, o.elemTrialCounter);
+        that.$elemRespInput = dltk._$$$(_$, o.elemRespInput);
+        that.$elemTestClickables = dltk._$$$(_$, o.elemTestClickables);
+
+        // on screen buffers for double buffering.
+        // from: http://blog.bob.sh/2012/12/double-buffering-with-html-5-canvas.html
+        that.ctx_sample_on = dltk.getOnScreenContextFromCanvas(o.elemSampleCanvasID);
+
+        // attach all default callback functions properly
+        for (var k in o) {
+            if (o.hasOwnProperty(k) && typeof(k) == 'string') {
+                if (!k.startsWith('on') || !k.endsWith('Default') || typeof(o[k]) != 'string')
+                    continue;
+                if (!callable(that[o[k]])) {
+                    dltk.setDebugMessage('init: ambigious reference: ' + o[k]);
+                }
+                o[k] = that[o[k]];
+            }
+        }
+
+        that.$elemSample.hide();
+        that.$elemTest.hide();
+        o.optdctQueueTrial.rsrcs = that.rsrcs;
+        testing_period = false;
+
+        return true;
+    };
+
+    this.getCurrentTrialInfo = function getCurrentTrialInfo() {
+        // Returns the current info
+        return that.currentTrialInfo;
+    };
+
+    this.getCurrentTrialNumber = function getCurrentTrialNumber(getLclNumbers) {
+        // Returns the current trial number
+        if (getLclNumbers) {
+            var h = o.__Experiment__.handle;
+            return that.getCurrentTrialInfo().localTrialNumbers[h];
+        }
+        return that.getCurrentTrialInfo().trialNumber;
+    };
+
+    this.getTotalTrialNumber = function getTotalTrialNumber(getLclNumbers) {
+        // Returns the total trial number
+        if (getLclNumbers)
+            return o.__Experiment__.localTotalTrialNumber;
+        return o.__Experiment__.globalTotalTrialNumber;
+    };
+};  // end of FreeChoice
+
+// -- Dynamic trial codes
+function clicked(argdct) {
+    trialEndTime = argdct.trialEndTime;
+    // Here, we explicitly use local trial numbers.  They will be the same as global numbers
+    // because there is only one module.  However, if there are multiple modules the numbers will be different.
+    trialNumber = argdct.localTrialNumber;    // vs. argdct.trialNumber (which is global trial number)
+    totalTrials = argdct.localTotalTrialNumber;   // vs. argdct.totalTrialNumber (again, global #)
+
+    // push all trial data
+    stimDone.push(trialNumber);
+    response.push(argdct.inputResponse);
+    trialDurations.push(trialEndTime - trialStartTime);
+    console.log(trialEndTime - trialStartTime);
+    setTimeout(endTrial, respScreenWait);
+}
+
+
+function endTrial() {
+    if (trialNumber >= (totalTrials - 1)) {
+        // -- finished all trials
+        $('#warning').show();
+        $('#warning').html("<font color=red style=background-color:white><b>" +
+                "Finished! Please wait while your answers are being submitted.<br />And please don't press the browser's back button. Thank you.</b></font>");
+
+        // prepare data to submit
+        var resultsobj = [], resultstr;
+        resultsobj.push({
+            Response: response,
+            ImgOrder: imgFiles,
+            StimShown: stimDone,
+            StimDuration: ExperimentData.stim_dur,
+            RT: trialDurations,
+            Condition: exp_type,
+            ResponseKeys: responseKeys,
+            Zoom: zoom,
+            IPaddress: user_IP,
+            Browser: dltk.BrowserDetect.browser,
+            Version: dltk.BrowserDetect.version,
+            OpSys: dltk.BrowserDetect.OS,
+            ExtInfo: extInfo,
+            WindowHeight: winH,
+            WindowWidth: winW,
+            ScreenHeight: vertical,
+            ScreenWidth: horizontal,
+            Benchmarks: exp.getBenchmarkResults(),
+            TimingInfo: {
+                TrialStartTimes: trialStartTimes,
+                ExpLoadTime: expLoadTime,
+                ISI1: measuredISI1,
+                StimDur: measuredStimDur,
+                ISI2: measuredISI2,
+                HistoryDiff: l_full_history,
+                HistoryDeltaDiffEach: l_full_history_delta}
+        });
+        resultstr = JSON.stringify(resultsobj);
+
+        // submit after ~4.5s delay to give the user time to read the message
+        setTimeout(function() {
+            // submit all.
+            document.getElementById("assignmentId").value = aID;
+            document.getElementById("data").value = resultstr;
+            document.getElementById("postdata").submit();
+        }, 4500);
+    }
+    else {
+        exp.runNextTrial();   // otherwise, run the next trial
+    }
+}
+
+
+// -- Setup part + other helper functions
+function initSetup() {
+    for (var i = 0; i < ExperimentData.stim.length; i++) {
+        var s = {
+            ISI1: ExperimentData.isi1[i],
+            Sample: ExperimentData.stim[i],
+            SampleDuration: ExperimentData.stim_dur[i],
+            ISI2: ExperimentData.isi2[i],
+        };
+        trialSpecs.push(s);
+        imgFiles.push(ExperimentData.stim[i]);
+    }
+
+    var spec_RSVP = {
+        elemSample: '#sample_container',      // which fully contains sampling related stuffs (previously .test)
+        elemTest: '#test_container',   // which fully contains testing related stuffs (previously #group_container)
+        elemSampleCanvasID: 'main_sample',       // don't prepend #   (previously main_test)
+        // elemTestCanvasIDs: ['img4', 'img5'],     // don't prepend #
+        elemTestClickables: '#submit_response',  // elements that will be made clickable to receive answers
+        elemTrialCounter: '#trialCounter',
+        elemRespInput: '#input_response',
+        onResponseReady:       // called when all test images are up
+            function (argdct) {
+                // the time when response images are up and ready
+                trialStartTime = argdct.trialStartTime;
+                trialStartTimes.push(trialStartTime - expLoadTime);
+
+                measuredISI1.push(argdct.t_ISI1);
+                measuredStimDur.push(argdct.t_stim);
+                measuredISI2.push(argdct.t_ISI2);
+
+                l_full_history.push(argdct.hist_extract);
+                l_full_history_delta.push(argdct.hist_delta_extract);
+
+                // mainly for diagnosis/debugging:
+                _hist = argdct.hist;
+                _hist_delta = argdct.hist_delta;
+            },
+        responseKeys: responseKeys,
+        onClickedTestBtn: clicked    // called when the turker clicks on of the test button
+    };
+
+    var spec = {
+        trialSpecs: trialSpecs,       // defines this experiment
+        modulesToAdd: [{module: FreeChoice, options: spec_RSVP}],   // modules to add on init
+        elemFallback: '#fallback',    // things to display when everything fails
+        elemTutorial: '#tutorial',    // dialog box for the instructions
+        elemSystemmsg: '#systemmsg',  // dialog box for benchmark failures
+        elemNotice: '#notice',        // the red square stuff
+        elemUpperRightGroup: '#upperright',
+        elemTutorialLink: '#tutorial_link',
+        elemTimer: '#timedisp',       // to where the elapsed time will be displayed
+        elemBeginTaskBtn: '#begintask',
+        elemBeginTaskGroup: '#begintaskdiv',
+        elemWarning: '#warning',
+        elemPreload: '#_preload',
+        elemFPSBench: '#fps_bench',
+        elemFPSBenchCanvasID: 'fps_test',  // DO NOT prepend #
+        FPSBenchColor: '#7f7f7f',          // usually the document bgcolor
+        supportedOS: ['Windows', 'Mac', 'Linux'],
+        supportedBrowser: ['Chrome', 'Firefox'],
+        tutorialContents: $("#tutorial_original").html(),   // the (1st page) content of the instructions
+        expLoadTime: expLoadTime,          // override expLoadTime for better consistency with this html
+        maxHeightInThisExp: maxHeightInThisExp,   // approx actual height (in pixels) used this HIT
+        useRecomputeOffset: true,       // recenters the experiment elements when needed
+        printDbgMessage: true,          // use true to print console logs (use false for production)
+        onRecomputeOffset:              // this is called when the browser window gets resized
+            function (argdct) {
+                winW = argdct.winW;
+                winH = argdct.winH;
+                horizontal = argdct.horizontal;
+                vertical = argdct.vertical;
+                extInfo.offsetToTop = argdct.offsetToTop;
+            },
+    };
+
+    exp = new dltk.Experiment($, spec);
+
+    // for debug purposes only
+    // exp.testSystemAndPrepExp = function testSystemAndPrepExp() {
+    //     exp._afterPassBenchmark();
+    // };
+
+    // abort if initialization fails
+    if (!exp.init()) return false;
+
+    aID = exp.getAssignmentID();   // assignmentID for mturk
+    zoom = DetectZoom.zoom();      // the zoom status of this browser window
+
+    // success!
+    return true;
+}
+
+function main() {
+    var is_open;
+
+    if (!initSetup()) return;      // abort if initSetup() fails
+    exp.testSystemAndPrepExp();    // run various benchmarks and prepare the experiment
+    $('#input_response').on('input', function() {
+        var respFromInput = $('#input_response').val().toLowerCase();
+        // console.log($.inArray(respFromInput, exp.word_list));
+        // $('#submit_response').prop('disabled', true);
+        if (respFromInput.length == 0) {
+            $('#input_message').hide()
+            $('#submit_response').prop('disabled', true);
+        }
+        else if ($.inArray(respFromInput, exp.word_list_lower) >= 0) {
+            $('#input_message').hide()
+            $('#submit_response').prop('disabled', false);
+        }
+        else if (respFromInput.length < 3) {
+            $('#input_message').hide()
+            $('#submit_response').prop('disabled', true);
+        }
+        else if ((!is_open) & ($.inArray(respFromInput, exp.word_list_lower) < 0)) {
+            $('#input_message').show()
+            $('#submit_response').prop('disabled', true);
+        }
+    });
+
+    $('#input_response').bind('autocompleteopen', function(event, ui) {
+        is_open = true;
+    });
+
+    $('#input_response').bind('autocompleteclose', function(event, ui) {
+        is_open = false;
+    });
+
+    $("#input_response").autocomplete({
+        autoFocus: true,
+      source: function(req, resp) {
+          var re = $.ui.autocomplete.escapeRegex(req.term);
+          var matcher = new RegExp( "^" + re, "i" );
+          resp($.grep(exp.word_list, function(item){return matcher.test(item.label || item.value || item);}) );
+      },
+      minLength: 3,  // there are at most 11 words that first match 3 letters
+      delay: 0,
+      close: function (event, ui) {
+          $('#input_response').trigger('input')
+        //   if (($.inArray(this.value, exp.word_list) < 0) & (this.value.length >= 3)){
+        //       $('#input_message').show()
+        //       $('#submit_response').prop('disabled', true);
+        //   }
+        //   else {
+        //       $('#input_message').hide()
+        //       $('#submit_response').prop('disabled', false);
+        //   }
+      },
+      open: function (event, ui) {
+          $('#input_message').hide();
+          $('#submit_response').prop('disabled', true);
+      },
+      create: function (event, ui) {
+          $('#input_response').val('');
+          $('#input_message').hide();
+          $('#submit_response').prop('disabled', true);
+      },
+      select: function (event, ui) {
+          $('#submit_response').prop('disabled', false);
+          if (event.keyCode == 13) {
+              $('#submit_response').focus();
+          }
+      }
+
+    });
+}
+
+var autorun = function autorun() {
+    var autofunc = setInterval(function() {
+            $('#input_response').val('car');
+            $('#input_response').focus();
+            $('#input_response').trigger('change');
+            $('#submit_response').click();
+            },
+            2000
+        )
+}
+
+$(document).ready(main);
+</script>
+</head>
+
+<body bgcolor="#7F7F7F">
+
+<div style="height:100%; width:100%; position:absolute;">
+    <div id="fallback" align="center">
+        <span><font color=red style=background-color:white><b>It seems that your browser does not support JavaScript or there was a network error.<br />Please enable JavaScript or reload this page to run this HIT.  Thank you!</b></font></span>
+    </div>
+
+    <!-- set everything below with style="display: none;" to hide: only #fallback above will be shown if js fails. -->
+    <div id="warning" align="center" style="position:fixed; align-content:center; width:100%; top:0px; display: none;"></div>
+
+    <div id="begintaskdiv" style="position:absolute; top:50%; left:50%; display: none; margin-top:220px; margin-left:-35px;"><button id="begintask" value="Begin!" style="height:30px; width:70px;" >Begin!</button></div>
+
+    <div id="_preload" align="center" style="position:fixed; top:0px; left:10px; display: none;"></div>
+
+    <div id="fps_bench" align="center" style="position:fixed; top:50px; left:10px; display: none;">
+        <canvas id="fps_test" width="50" height="50" style="position:relative; top:0px; left:0px; z-index:200;"></canvas>
+    </div>
+
+    <!-- try to aim 8 deg -->
+    <div id="sample_container" align="center" style="position:relative; z-index:200; top:50%; height:360px; margin-top:-180px; display: none;">
+        <canvas id="main_sample" width="360" height="360" style="position:relative; top:0px; left:0px; z-index:200;"></canvas>
+    </div>
+
+    <div id="notice" align="center" style="position:absolute; z-index:200; top:50%; left:50%; height:366px; margin-top:-183px; margin-left:-180px; display: none;">
+        <img src="https://s3.amazonaws.com/task_images/notice.png" height="360" width="360"/>
+    </div>
+
+    <div id="test_container"  style="position:relative; width:100%; top:50%; height:200px; margin-top:-100px; display: none;" align="center">
+        <div id="resp_cont" style="width:500px; text-align:left;">
+            <label id="response_label" for="input_response" style="display:block; align:left;">What object did you see?</label>
+            <input id="input_response" size="35" style="display:inline; font-size:20px;">
+            <button id="submit_response" style="display: inline; font-size: 20px;">Submit</button>
+            <div id="input_message" style="color: #8b0000; display:hidden; font-size:14px;">No matches found</div>
+            <div id="trialCounter"></div>
+        </div>
+    </div>
+
+    <div id="upperright" align="right" style="position:absolute; top:50%; right:10px; margin-top:-250px; display: none;">
+        <div id="tutorial_link">
+            <u>View Instructions</u>
+        </div>
+        <div id="timedisp"></div>
+    </div>
+
+    <div id="systemmsg" style="position:relative; z-index:-1; display: none;"></div>
+    <div id="tutorial" style="position:relative; z-index:-1; display: none;"></div>
+
+    <div id="tutorial_original" style="position:absolute; z-index:-1; display: none;">
+        <p><b>NOTE: Please close all other programs/taps while running this task to get the optimal system performance. Users on a suboptimal system can experience glitches that will lead to rejection. Also, low scores on this task will lead to rejection: make sure to read this instruction!</b></p>
+        <p><b>Please DO NOT accept this HIT if you have already completed this naming task recently.</b></p>
+        <p>Thank you for your interest! You are contributing to ongoing vision research at the Massachusetts Institute of Technology McGovern Institute for Brain Research.</p>
+        <p><font color=red><b>This task will require you to look at images on your computer screen and type a name of an object for up to about ${MAX_DUR} minutes. <b>Your English must be good enough to be able to name common objects in English.</b> If you cannot meet these requirements for any reason, or if doing so could cause discomfort or injury to you, do not accept this HIT.</b></font></p>
+        <p><font color=red><b>We encourage you to try a little bit of this HIT before accepting to ensure it is compatible with your system. If you think the task is working improperly, your computer may be incompatible.</b></font></p>
+        <p>We recommend this task for those who are interested in contributing to scientific endeavors. Your answers will help MIT researchers better understand how the brain processes visual information.</p>
+
+        <center><p onclick="$('#tutorial').html($('#tutorial2').html())"><font color=blue><u>Click here to continue reading</u></font></p></center>
+    </div>
+
+    <div id="tutorial2" style="position:absolute; z-index:-1; display: none;">
+        <ul>
+            <li>You will see a series of images, each one presented for a very brief time. Each image will feature a single object from ${NOBJS} possibilities. The objects are common things you might see around your house, on TV, in books, or on the Internet, but may be hard to recognize.</li>
+            <li>After you see an image, you will have to type the name of the object that you saw. As you type three or more letters, several suggestions will appear. Your response can only be from the provided suggestions. If you try to type something else, a message will appear (<em>"No matches found"</em>) and you will not be able to continue until you have typed a name that is in the list of suggestions. If suggestions do not show up, that means the name your typed in is not on the list and you need to come up with another name (perhaps a synonym) that is on the list.
+            <li>For example, if you think you saw a picture of a pizza, start typing <em>pizza</em>. The suggestions will appear after you have typed in <em>piz</em>. You may choose <em>pizza</em> from the list with a mouse click or Enter or Tab, or simply continue to type the whole word (<em>pizza</em>) manually. If you change your mind and now think it was a clock, delete <em>pizza</em> and start typing <em>clock</em>. You will see a different list of suggestions appear; choose <em>clock</em> from them.</li>
+            <li>Even if you're not 100% sure of what you saw, <u><b>make your best guess.</b></u></li>
+            <li>Once you entered a valid response, click "Submit" to move on to the next image.</li>
+            <li>When you have worked though all the images, this HIT <b>will submit itself automatically</b>.</li>
+        </ul>
+        <center><p onclick="$('#tutorial').html($('#tutorial3').html())"><font color=blue><u>Click here to continue reading</u></font></p></center>
+    </div>
+
+    <div id="tutorial3" style="position:absolute; z-index:-1; display: none;">
+        <ul>
+            <li>Please be sure to maximize your browser window before beginning this experiment.</li>
+            <li><b>In total, you will see ${NTRIALS} images. We expect this experiment to take about ${EXPECTED_DUR} minutes.</b> Note that the HIT will expire if you spend more than ${MAX_DUR} minutes, so plan your time accordingly.</li>
+            <li>When you are ready to begin, click the "Begin" button. <b>Be prepared to see the first image -- it happens very fast!</b></li>
+            <li>If you have questions or concerns about this HIT, feel free to contact the requester. You can re-read these instructions at any time by clicking the link in the upper right-hand corner of the screen. Good luck!</li>
+        </ul>
+        <center><font color=blue><u><p onclick="$('#tutorial').dialog('close')">Click here to close the instructions</p></u></font></center>
+    </div>
+</div>
+
+<form style="display: none;" id="postdata" action="https://www.mturk.com/mturk/externalSubmit" method="post">
+    <input type="text" name="data" id="data" value="">
+    <input type="text" name="assignmentId" id="assignmentId" value="">
+</form>
+</body>
+</html>

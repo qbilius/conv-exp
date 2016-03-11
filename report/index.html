@@ -10,26 +10,219 @@
         <div id="toc"></div>
         <h1>Snodgrass</h1>
 <h2>Accuracy</h2>
-<h3>Behavioral</h3>
+<h3>Old behavioral</h3>
 <figure>
     <img src="snodgrass/plot_acc_snodgrass_behav.svg" />
     <figcaption><strong>Figure.</strong> plot_acc_snodgrass_behav</figcaption>
 </figure>
-<h3>Models</h3>
 <figure>
-    <img src="snodgrass/plot_acc_snodgrass_sil_all.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_sil_all</figcaption>
+    <figcaption><strong>Table.</strong> </figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dataset</th>
+      <th>accuracy</th>
+      <th>stdev</th>
+      <th>ci_low</th>
+      <th>ci_high</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>color</td>
+      <td>0.903</td>
+      <td>0.169</td>
+      <td>0.882</td>
+      <td>0.924</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>gray</td>
+      <td>0.892</td>
+      <td>0.172</td>
+      <td>0.871</td>
+      <td>0.913</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>silhouette</td>
+      <td>0.647</td>
+      <td>0.398</td>
+      <td>0.599</td>
+      <td>0.695</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<h3>New behavioral</h3>
+<figure>
+    <img src="snodgrass/plot_acc_snodgrass_behav.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_behav</figcaption>
 </figure>
 <figure>
-    <img src="snodgrass/plot_acc0_snodgrass_sil_all.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc0_snodgrass_sil_all</figcaption>
+    <figcaption><strong>Table.</strong> </figcaption>
+    <div><table border="1" class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>acc</th>
+    </tr>
+    <tr>
+      <th>kind</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>color</th>
+      <td>0.946</td>
+    </tr>
+    <tr>
+      <th>gray</th>
+      <td>0.893</td>
+    </tr>
+    <tr>
+      <th>silhouette</th>
+      <td>0.644</td>
+    </tr>
+  </tbody>
+</table></div>
+</figure>
+<p>Correlation old-new: 0.79</p><p>Consistency old-new: 0.94</p><h3>Models</h3>
+<figure>
+    <img src="snodgrass/plot_acc_snodgrass_all_acc.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_snodgrass_all_acc</figcaption>
+</figure>
+<h2>Correlation</h2>
+<h3>Per model</h3>
+<figure>
+    <img src="snodgrass/plot_corr_sil_snodgrass_silhouette_caffenet_all.svg" />
+    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>  <td>model_accuracy</td>  <th>  No. Observations:  </th>  <td>    61</td> 
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
+</tr>
+<tr>
+  <th>Date:</th>          <td>Fri, 11 Mar 2016</td> <th>  Pseudo R-squ.:     </th>  <td>0.1181</td> 
+</tr>
+<tr>
+  <th>Time:</th>              <td>08:24:52</td>     <th>  Log-Likelihood:    </th> <td> -31.833</td>
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -36.094</td>
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>0.003508</td>
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -3.1235</td> <td>    1.046</td> <td>   -2.986</td> <td> 0.003</td> <td>   -5.174    -1.073</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    2.9808</td> <td>    1.246</td> <td>    2.393</td> <td> 0.017</td> <td>    0.539     5.422</td>
+</tr>
+</table></figcaption>
 </figure>
 <figure>
-    <img src="snodgrass/plot_mcorr_snodgrass_sil_all.svg" />
-    <figcaption><strong>Figure.</strong> plot_mcorr_snodgrass_sil_all</figcaption>
+    <img src="snodgrass/plot_corr_sil_snodgrass_silhouette_vgg-19_all.svg" />
+    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>  <td>model_accuracy</td>  <th>  No. Observations:  </th>  <td>    61</td> 
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
+</tr>
+<tr>
+  <th>Date:</th>          <td>Fri, 11 Mar 2016</td> <th>  Pseudo R-squ.:     </th>  <td>0.1155</td> 
+</tr>
+<tr>
+  <th>Time:</th>              <td>08:24:59</td>     <th>  Log-Likelihood:    </th> <td> -31.047</td>
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -35.102</td>
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>0.004403</td>
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -3.2260</td> <td>    1.087</td> <td>   -2.969</td> <td> 0.003</td> <td>   -5.356    -1.096</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    2.9909</td> <td>    1.287</td> <td>    2.323</td> <td> 0.020</td> <td>    0.468     5.514</td>
+</tr>
+</table></figcaption>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> accuracy correlation</figcaption>
+    <img src="snodgrass/plot_corr_sil_snodgrass_silhouette_googlenet_all.svg" />
+    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
+<caption>Logit Regression Results</caption>
+<tr>
+  <th>Dep. Variable:</th>  <td>model_accuracy</td>  <th>  No. Observations:  </th>  <td>    61</td> 
+</tr>
+<tr>
+  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
+</tr>
+<tr>
+  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
+</tr>
+<tr>
+  <th>Date:</th>          <td>Fri, 11 Mar 2016</td> <th>  Pseudo R-squ.:     </th>  <td>0.09549</td>
+</tr>
+<tr>
+  <th>Time:</th>              <td>08:25:06</td>     <th>  Log-Likelihood:    </th> <td> -37.642</td>
+</tr>
+<tr>
+  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -41.616</td>
+</tr>
+<tr>
+  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>0.004815</td>
+</tr>
+</table>
+<table class="simpletable table">
+<tr>
+         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
+</tr>
+<tr>
+  <th>Intercept</th>      <td>   -1.8411</td> <td>    0.699</td> <td>   -2.634</td> <td> 0.008</td> <td>   -3.211    -0.471</td>
+</tr>
+<tr>
+  <th>human_accuracy</th> <td>    2.2795</td> <td>    0.894</td> <td>    2.549</td> <td> 0.011</td> <td>    0.526     4.033</td>
+</tr>
+</table></figcaption>
+</figure>
+<h3>New data</h3>
+<figure>
+    <img src="snodgrass/plot_pred_corr_snodgrass_silhouette_all_model_accuracy_euclidean.svg" />
+    <figcaption><strong>Figure.</strong> plot_pred_corr_snodgrass_silhouette_all_model_accuracy_euclidean</figcaption>
+</figure>
+<h3>Between models</h3>
+<figure>
+    <img src="snodgrass/plot_mcorr_snodgrass_silhouette_all.svg" />
+    <figcaption><strong>Figure.</strong> plot_mcorr_snodgrass_silhouette_all</figcaption>
+</figure>
+<figure>
+    <figcaption><strong>Table.</strong> proportion of matching responses</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr>
@@ -76,118 +269,118 @@
       <th rowspan="3" valign="top">caffenet</th>
       <th>color</th>
       <td>nan</td>
-      <td>0.830</td>
-      <td>0.551</td>
-      <td>0.789</td>
-      <td>0.755</td>
-      <td>0.531</td>
-      <td>0.796</td>
-      <td>0.762</td>
-      <td>0.544</td>
+      <td>0.803</td>
+      <td>0.426</td>
+      <td>0.803</td>
+      <td>0.656</td>
+      <td>0.410</td>
+      <td>0.787</td>
+      <td>0.738</td>
+      <td>0.475</td>
     </tr>
     <tr>
       <th>gray</th>
-      <td>0.830</td>
+      <td>0.803</td>
       <td>nan</td>
-      <td>0.544</td>
-      <td>0.755</td>
-      <td>0.789</td>
-      <td>0.524</td>
-      <td>0.680</td>
-      <td>0.782</td>
-      <td>0.524</td>
+      <td>0.557</td>
+      <td>0.738</td>
+      <td>0.754</td>
+      <td>0.508</td>
+      <td>0.721</td>
+      <td>0.836</td>
+      <td>0.541</td>
     </tr>
     <tr>
       <th>silhouette</th>
-      <td>0.551</td>
-      <td>0.544</td>
+      <td>0.426</td>
+      <td>0.557</td>
       <td>nan</td>
-      <td>0.544</td>
-      <td>0.605</td>
-      <td>0.803</td>
-      <td>0.524</td>
-      <td>0.571</td>
-      <td>0.844</td>
+      <td>0.459</td>
+      <td>0.508</td>
+      <td>0.820</td>
+      <td>0.344</td>
+      <td>0.426</td>
+      <td>0.754</td>
     </tr>
     <tr>
       <th rowspan="3" valign="top">vgg-19</th>
       <th>color</th>
-      <td>0.789</td>
-      <td>0.755</td>
-      <td>0.544</td>
+      <td>0.803</td>
+      <td>0.738</td>
+      <td>0.459</td>
       <td>nan</td>
-      <td>0.844</td>
-      <td>0.524</td>
-      <td>0.789</td>
-      <td>0.741</td>
-      <td>0.537</td>
+      <td>0.852</td>
+      <td>0.377</td>
+      <td>0.885</td>
+      <td>0.836</td>
+      <td>0.508</td>
     </tr>
     <tr>
       <th>gray</th>
-      <td>0.755</td>
-      <td>0.789</td>
-      <td>0.605</td>
-      <td>0.844</td>
+      <td>0.656</td>
+      <td>0.754</td>
+      <td>0.508</td>
+      <td>0.852</td>
       <td>nan</td>
-      <td>0.599</td>
-      <td>0.741</td>
-      <td>0.816</td>
-      <td>0.585</td>
+      <td>0.492</td>
+      <td>0.770</td>
+      <td>0.852</td>
+      <td>0.590</td>
     </tr>
     <tr>
       <th>silhouette</th>
-      <td>0.531</td>
-      <td>0.524</td>
-      <td>0.803</td>
-      <td>0.524</td>
-      <td>0.599</td>
+      <td>0.410</td>
+      <td>0.508</td>
+      <td>0.820</td>
+      <td>0.377</td>
+      <td>0.492</td>
       <td>nan</td>
-      <td>0.476</td>
-      <td>0.469</td>
-      <td>0.837</td>
+      <td>0.295</td>
+      <td>0.377</td>
+      <td>0.770</td>
     </tr>
     <tr>
       <th rowspan="3" valign="top">googlenet</th>
       <th>color</th>
-      <td>0.796</td>
-      <td>0.680</td>
-      <td>0.524</td>
-      <td>0.789</td>
-      <td>0.741</td>
-      <td>0.476</td>
+      <td>0.787</td>
+      <td>0.721</td>
+      <td>0.344</td>
+      <td>0.885</td>
+      <td>0.770</td>
+      <td>0.295</td>
       <td>nan</td>
-      <td>0.816</td>
-      <td>0.571</td>
+      <td>0.852</td>
+      <td>0.492</td>
     </tr>
     <tr>
       <th>gray</th>
-      <td>0.762</td>
-      <td>0.782</td>
-      <td>0.571</td>
-      <td>0.741</td>
-      <td>0.816</td>
-      <td>0.469</td>
-      <td>0.816</td>
+      <td>0.738</td>
+      <td>0.836</td>
+      <td>0.426</td>
+      <td>0.836</td>
+      <td>0.852</td>
+      <td>0.377</td>
+      <td>0.852</td>
       <td>nan</td>
-      <td>0.565</td>
+      <td>0.508</td>
     </tr>
     <tr>
       <th>silhouette</th>
-      <td>0.544</td>
-      <td>0.524</td>
-      <td>0.844</td>
-      <td>0.537</td>
-      <td>0.585</td>
-      <td>0.837</td>
-      <td>0.571</td>
-      <td>0.565</td>
+      <td>0.475</td>
+      <td>0.541</td>
+      <td>0.754</td>
+      <td>0.508</td>
+      <td>0.590</td>
+      <td>0.770</td>
+      <td>0.492</td>
+      <td>0.508</td>
       <td>nan</td>
     </tr>
   </tbody>
 </table></div>
 </figure>
 <figure>
-    <figcaption><strong>Table.</strong> mean accuracy correlation</figcaption>
+    <figcaption><strong>Table.</strong> mean proportion of matching responses</figcaption>
     <div><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
@@ -205,273 +398,44 @@
     <tr>
       <th rowspan="3" valign="top">color</th>
       <th>color</th>
-      <td>0.791</td>
+      <td>0.825</td>
     </tr>
     <tr>
       <th>gray</th>
-      <td>0.769</td>
+      <td>0.774</td>
     </tr>
     <tr>
       <th>silhouette</th>
-      <td>0.534</td>
+      <td>0.421</td>
     </tr>
     <tr>
       <th rowspan="3" valign="top">gray</th>
       <th>color</th>
-      <td>0.769</td>
+      <td>0.774</td>
     </tr>
     <tr>
       <th>gray</th>
-      <td>0.796</td>
+      <td>0.814</td>
     </tr>
     <tr>
       <th>silhouette</th>
-      <td>0.554</td>
+      <td>0.501</td>
     </tr>
     <tr>
       <th rowspan="3" valign="top">silhouette</th>
       <th>color</th>
-      <td>0.534</td>
+      <td>0.421</td>
     </tr>
     <tr>
       <th>gray</th>
-      <td>0.554</td>
+      <td>0.501</td>
     </tr>
     <tr>
       <th>silhouette</th>
-      <td>0.828</td>
+      <td>0.781</td>
     </tr>
   </tbody>
 </table></div>
-</figure>
-<h2>Correlation</h2>
-<figure>
-    <img src="snodgrass/plot_corr_sil_snodgrass_sil_caffenet_all.svg" />
-    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
-<caption>Logit Regression Results</caption>
-<tr>
-  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>   147</td> 
-</tr>
-<tr>
-  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>   145</td> 
-</tr>
-<tr>
-  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
-</tr>
-<tr>
-  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.02994</td>
-</tr>
-<tr>
-  <th>Time:</th>              <td>18:13:21</td>     <th>  Log-Likelihood:    </th> <td> -90.079</td>
-</tr>
-<tr>
-  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -92.859</td>
-</tr>
-<tr>
-  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th>  <td>0.01836</td>
-</tr>
-</table>
-<table class="simpletable table">
-<tr>
-         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
-</tr>
-<tr>
-  <th>Intercept</th>      <td>   -1.5788</td> <td>    0.437</td> <td>   -3.612</td> <td> 0.000</td> <td>   -2.436    -0.722</td>
-</tr>
-<tr>
-  <th>human_accuracy</th> <td>    1.1854</td> <td>    0.528</td> <td>    2.244</td> <td> 0.025</td> <td>    0.150     2.221</td>
-</tr>
-</table></figcaption>
-</figure>
-<figure>
-    <img src="snodgrass/plot_corr_sil_snodgrass_sil_caffenet_exact.svg" />
-    <figcaption><strong>Figure.</strong> exact<table class="simpletable table">
-<caption>Logit Regression Results</caption>
-<tr>
-  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>    61</td> 
-</tr>
-<tr>
-  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
-</tr>
-<tr>
-  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
-</tr>
-<tr>
-  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.01192</td>
-</tr>
-<tr>
-  <th>Time:</th>              <td>18:13:24</td>     <th>  Log-Likelihood:    </th> <td> -40.399</td>
-</tr>
-<tr>
-  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -40.886</td>
-</tr>
-<tr>
-  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th>  <td>0.3235</td> 
-</tr>
-</table>
-<table class="simpletable table">
-<tr>
-         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
-</tr>
-<tr>
-  <th>Intercept</th>      <td>   -0.8273</td> <td>    0.489</td> <td>   -1.691</td> <td> 0.091</td> <td>   -1.786     0.132</td>
-</tr>
-<tr>
-  <th>human_accuracy</th> <td>    0.6601</td> <td>    0.675</td> <td>    0.978</td> <td> 0.328</td> <td>   -0.663     1.983</td>
-</tr>
-</table></figcaption>
-</figure>
-<figure>
-    <img src="snodgrass/plot_corr_sil_snodgrass_sil_vgg-19_all.svg" />
-    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
-<caption>Logit Regression Results</caption>
-<tr>
-  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>   147</td> 
-</tr>
-<tr>
-  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>   145</td> 
-</tr>
-<tr>
-  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
-</tr>
-<tr>
-  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.03663</td>
-</tr>
-<tr>
-  <th>Time:</th>              <td>18:13:27</td>     <th>  Log-Likelihood:    </th> <td> -88.745</td>
-</tr>
-<tr>
-  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -92.120</td>
-</tr>
-<tr>
-  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>0.009383</td>
-</tr>
-</table>
-<table class="simpletable table">
-<tr>
-         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
-</tr>
-<tr>
-  <th>Intercept</th>      <td>   -1.7224</td> <td>    0.454</td> <td>   -3.790</td> <td> 0.000</td> <td>   -2.613    -0.832</td>
-</tr>
-<tr>
-  <th>human_accuracy</th> <td>    1.3317</td> <td>    0.545</td> <td>    2.444</td> <td> 0.015</td> <td>    0.264     2.399</td>
-</tr>
-</table></figcaption>
-</figure>
-<figure>
-    <img src="snodgrass/plot_corr_sil_snodgrass_sil_vgg-19_exact.svg" />
-    <figcaption><strong>Figure.</strong> exact<table class="simpletable table">
-<caption>Logit Regression Results</caption>
-<tr>
-  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>    61</td> 
-</tr>
-<tr>
-  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
-</tr>
-<tr>
-  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
-</tr>
-<tr>
-  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th> <td>0.007257</td>
-</tr>
-<tr>
-  <th>Time:</th>              <td>18:13:30</td>     <th>  Log-Likelihood:    </th> <td> -38.988</td>
-</tr>
-<tr>
-  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -39.273</td>
-</tr>
-<tr>
-  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th>  <td>0.4502</td> 
-</tr>
-</table>
-<table class="simpletable table">
-<tr>
-         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
-</tr>
-<tr>
-  <th>Intercept</th>      <td>   -0.9549</td> <td>    0.503</td> <td>   -1.899</td> <td> 0.058</td> <td>   -1.940     0.031</td>
-</tr>
-<tr>
-  <th>human_accuracy</th> <td>    0.5184</td> <td>    0.692</td> <td>    0.749</td> <td> 0.454</td> <td>   -0.838     1.875</td>
-</tr>
-</table></figcaption>
-</figure>
-<figure>
-    <img src="snodgrass/plot_corr_sil_snodgrass_sil_googlenet_all.svg" />
-    <figcaption><strong>Figure.</strong> all<table class="simpletable table">
-<caption>Logit Regression Results</caption>
-<tr>
-  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>   147</td>  
-</tr>
-<tr>
-  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>   145</td>  
-</tr>
-<tr>
-  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td>  
-</tr>
-<tr>
-  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.09975</td> 
-</tr>
-<tr>
-  <th>Time:</th>              <td>18:13:34</td>     <th>  Log-Likelihood:    </th> <td> -88.366</td> 
-</tr>
-<tr>
-  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -98.157</td> 
-</tr>
-<tr>
-  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>9.635e-06</td>
-</tr>
-</table>
-<table class="simpletable table">
-<tr>
-         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
-</tr>
-<tr>
-  <th>Intercept</th>      <td>   -2.1656</td> <td>    0.506</td> <td>   -4.281</td> <td> 0.000</td> <td>   -3.157    -1.174</td>
-</tr>
-<tr>
-  <th>human_accuracy</th> <td>    2.3128</td> <td>    0.594</td> <td>    3.894</td> <td> 0.000</td> <td>    1.149     3.477</td>
-</tr>
-</table></figcaption>
-</figure>
-<figure>
-    <img src="snodgrass/plot_corr_sil_snodgrass_sil_googlenet_exact.svg" />
-    <figcaption><strong>Figure.</strong> exact<table class="simpletable table">
-<caption>Logit Regression Results</caption>
-<tr>
-  <th>Dep. Variable:</th>     <td>accuracy</td>     <th>  No. Observations:  </th>  <td>    61</td> 
-</tr>
-<tr>
-  <th>Model:</th>               <td>Logit</td>      <th>  Df Residuals:      </th>  <td>    59</td> 
-</tr>
-<tr>
-  <th>Method:</th>               <td>MLE</td>       <th>  Df Model:          </th>  <td>     1</td> 
-</tr>
-<tr>
-  <th>Date:</th>          <td>Sat, 28 Nov 2015</td> <th>  Pseudo R-squ.:     </th>  <td>0.1047</td> 
-</tr>
-<tr>
-  <th>Time:</th>              <td>18:13:37</td>     <th>  Log-Likelihood:    </th> <td> -37.258</td>
-</tr>
-<tr>
-  <th>converged:</th>           <td>True</td>       <th>  LL-Null:           </th> <td> -41.616</td>
-</tr>
-<tr>
-  <th> </th>                      <td> </td>        <th>  LLR p-value:       </th> <td>0.003154</td>
-</tr>
-</table>
-<table class="simpletable table">
-<tr>
-         <td></td>           <th>coef</th>     <th>std err</th>      <th>z</th>      <th>P>|z|</th> <th>[95.0% Conf. Int.]</th> 
-</tr>
-<tr>
-  <th>Intercept</th>      <td>   -1.5728</td> <td>    0.564</td> <td>   -2.791</td> <td> 0.005</td> <td>   -2.677    -0.468</td>
-</tr>
-<tr>
-  <th>human_accuracy</th> <td>    2.0677</td> <td>    0.748</td> <td>    2.763</td> <td> 0.006</td> <td>    0.601     3.535</td>
-</tr>
-</table></figcaption>
 </figure>
 <h1>HOP2008</h1>
 <h2>MDS</h2>
@@ -534,15 +498,15 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>-0.008</td>
-      <td>0.464</td>
+      <td>0.029</td>
+      <td>0.377</td>
       <td></td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>-0.523</td>
+      <td>-0.282</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -550,7 +514,7 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.515</td>
+      <td>-0.312</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -579,24 +543,24 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.454</td>
-      <td>0.002</td>
-      <td>**</td>
+      <td>0.404</td>
+      <td>0.000</td>
+      <td>***</td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.294</td>
-      <td>0.010</td>
-      <td>*</td>
+      <td>0.369</td>
+      <td>0.000</td>
+      <td>***</td>
     </tr>
     <tr>
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.160</td>
-      <td>0.134</td>
+      <td>-0.036</td>
+      <td>0.313</td>
       <td></td>
     </tr>
   </tbody>
@@ -659,15 +623,15 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.035</td>
-      <td>0.180</td>
-      <td></td>
+      <td>0.046</td>
+      <td>0.010</td>
+      <td>*</td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>-0.369</td>
+      <td>-0.370</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -675,7 +639,7 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.403</td>
+      <td>-0.416</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -704,7 +668,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.244</td>
+      <td>0.246</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -712,7 +676,7 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.380</td>
+      <td>0.383</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -720,7 +684,7 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.136</td>
+      <td>0.137</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -730,32 +694,32 @@
 <h1>Geons</h1>
 <h2>Accuracy</h2>
 <figure>
-    <img src="geons/plot_acc_geons_3d_hmax99.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax99</figcaption>
+    <img src="geons/plot_acc_geons_hmax99.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_hmax99</figcaption>
 </figure>
 <figure>
-    <img src="geons/plot_acc_geons_3d_hmax_hmin.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax_hmin</figcaption>
+    <img src="geons/plot_acc_geons_hmax_hmin.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_hmax_hmin</figcaption>
 </figure>
 <figure>
-    <img src="geons/plot_acc_geons_3d_hmax_pnas.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_hmax_pnas</figcaption>
+    <img src="geons/plot_acc_geons_hmax_pnas.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_hmax_pnas</figcaption>
 </figure>
 <figure>
-    <img src="geons/plot_acc_geons_3d_caffenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_caffenet</figcaption>
+    <img src="geons/plot_acc_geons_caffenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_caffenet</figcaption>
 </figure>
 <figure>
-    <img src="geons/plot_acc_geons_3d_vgg-19.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_vgg-19</figcaption>
+    <img src="geons/plot_acc_geons_vgg-19.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_vgg-19</figcaption>
 </figure>
 <figure>
-    <img src="geons/plot_acc_geons_3d_googlenet.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_googlenet</figcaption>
+    <img src="geons/plot_acc_geons_googlenet.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_googlenet</figcaption>
 </figure>
 <figure>
-    <img src="geons/plot_acc_geons_3d_all_nap.svg" />
-    <figcaption><strong>Figure.</strong> plot_acc_geons_3d_all_nap</figcaption>
+    <img src="geons/plot_acc_geons_all_nap.svg" />
+    <figcaption><strong>Figure.</strong> plot_acc_geons_all_nap</figcaption>
 </figure>
 <figure>
     <figcaption><strong>Table.</strong> bootstrapped t-test (one-tailed, rel. samples)</figcaption>
@@ -775,15 +739,15 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.166</td>
-      <td>0.009</td>
+      <td>0.167</td>
+      <td>0.007</td>
       <td>**</td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.291</td>
+      <td>0.264</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -791,16 +755,16 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.125</td>
-      <td>0.039</td>
-      <td>*</td>
+      <td>0.097</td>
+      <td>0.099</td>
+      <td></td>
     </tr>
   </tbody>
 </table></div>
 </figure>
 <figure>
-    <img src="geons/plot_errors_geons_3d_all.svg" />
-    <figcaption><strong>Figure.</strong> plot_errors_geons_3d_all</figcaption>
+    <img src="geons/plot_errors_geons_all.svg" />
+    <figcaption><strong>Figure.</strong> plot_errors_geons_all</figcaption>
 </figure>
 <h1>Stefania</h1>
 <h2>MDS</h2>
@@ -856,7 +820,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.343</td>
+      <td>0.326</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -864,15 +828,15 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.090</td>
-      <td>0.002</td>
+      <td>0.051</td>
+      <td>0.001</td>
       <td>**</td>
     </tr>
     <tr>
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.253</td>
+      <td>-0.275</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -901,7 +865,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.247</td>
+      <td>0.245</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -909,7 +873,7 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.290</td>
+      <td>0.283</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -917,9 +881,9 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.043</td>
-      <td>0.000</td>
-      <td>***</td>
+      <td>0.038</td>
+      <td>0.001</td>
+      <td>**</td>
     </tr>
   </tbody>
 </table></div>
@@ -947,7 +911,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.379</td>
+      <td>0.357</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -955,15 +919,15 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.101</td>
-      <td>0.126</td>
+      <td>0.026</td>
+      <td>0.303</td>
       <td></td>
     </tr>
     <tr>
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.278</td>
+      <td>-0.331</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -992,7 +956,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.379</td>
+      <td>0.328</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -1000,7 +964,7 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.394</td>
+      <td>0.335</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -1008,8 +972,8 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.015</td>
-      <td>0.376</td>
+      <td>0.007</td>
+      <td>0.483</td>
       <td></td>
     </tr>
   </tbody>
@@ -1038,7 +1002,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.346</td>
+      <td>0.353</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -1046,15 +1010,15 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.089</td>
-      <td>0.000</td>
-      <td>***</td>
+      <td>0.053</td>
+      <td>0.001</td>
+      <td>**</td>
     </tr>
     <tr>
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.257</td>
+      <td>-0.300</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -1083,7 +1047,7 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.201</td>
+      <td>0.146</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -1091,7 +1055,7 @@
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.241</td>
+      <td>0.202</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -1099,9 +1063,9 @@
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.039</td>
-      <td>0.001</td>
-      <td>**</td>
+      <td>0.056</td>
+      <td>0.000</td>
+      <td>***</td>
     </tr>
   </tbody>
 </table></div>
@@ -1129,23 +1093,23 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.380</td>
-      <td>0.001</td>
-      <td>**</td>
+      <td>0.384</td>
+      <td>0.000</td>
+      <td>***</td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.097</td>
-      <td>0.046</td>
-      <td>*</td>
+      <td>0.110</td>
+      <td>0.004</td>
+      <td>**</td>
     </tr>
     <tr>
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>-0.283</td>
+      <td>-0.274</td>
       <td>0.000</td>
       <td>***</td>
     </tr>
@@ -1174,25 +1138,25 @@
       <th>0</th>
       <td>deep</td>
       <td>hmax</td>
-      <td>0.207</td>
-      <td>0.012</td>
+      <td>0.136</td>
+      <td>0.017</td>
       <td>*</td>
     </tr>
     <tr>
       <th>1</th>
       <td>deep</td>
       <td>shallow</td>
-      <td>0.258</td>
-      <td>0.004</td>
-      <td>**</td>
+      <td>0.208</td>
+      <td>0.000</td>
+      <td>***</td>
     </tr>
     <tr>
       <th>2</th>
       <td>hmax</td>
       <td>shallow</td>
-      <td>0.051</td>
-      <td>0.044</td>
-      <td>*</td>
+      <td>0.072</td>
+      <td>0.003</td>
+      <td>**</td>
     </tr>
   </tbody>
 </table></div>

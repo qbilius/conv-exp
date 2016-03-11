@@ -1,3 +1,8 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import sys, os, glob, subprocess
 from collections import OrderedDict
 
@@ -8,7 +13,7 @@ import seaborn as sns
 from nltk.corpus import wordnet as wn
 
 sys.path.insert(0, '../../psychopy_ext')
-from psychopy_ext import stats, models
+from psychopy_ext import stats, utils
 
 import base
 
@@ -33,6 +38,18 @@ class Stefania(base.Base):
             # self.ims = [im for im,s in zip(self.ims,sel) if s]
             # self.dims = {k:v[sel] for k,v in self.dims.items()}
             # self.sel = sel
+
+    def get_images(self):
+        ims = glob.glob('stefania/img/*.jpg')
+        if len(ims) != 54:
+            print("Due to copyright restrictions, you need to ask the "
+                        "authors for the URL of the Bracci & Op de Beeck "
+                        "(2016) stimulus set and place all images in "
+                        "stefania/img.")
+        else:
+            self._gen_alpha()
+            self._gen_sil()
+
     # def mds(self):
     #     self.dissimilarity()
     #     path = os.path.join('img', 'png', '*.*')
@@ -45,8 +62,10 @@ class Stefania(base.Base):
         colors = [p[1], p[5], p[6], p[2], p[3], p[7]]
         icons = []
         ims = sorted(glob.glob('stefania/img/alpha/*.png'))
+        if len(ims) == 0:
+            self.get_images()
         for imno,c in enumerate(self.dims['category']):
-            im = models.load_image(ims[imno], keep_alpha=True)
+            im = utils.load_image(ims[imno], keep_alpha=True)
             mask = im[:,:,3]>0
             im[:,:,:3][mask] = colors[c][0], colors[c][1], colors[c][2]
             icons.append(im)
@@ -58,7 +77,7 @@ class Stefania(base.Base):
         icons = []
         ims = sorted(glob.glob('stefania/img/alpha/*.png'))
         for imno,c in enumerate(self.dims['category']):
-            im = models.load_image(ims[imno], keep_alpha=True)
+            im = utils.load_image(ims[imno], keep_alpha=True)
             # generate outlines
             mask = im[:,:,3]>0
             icon = scipy.ndimage.binary_dilation(mask, structure=np.ones((50,50)))
@@ -121,13 +140,13 @@ class Stefania(base.Base):
         for line in lines:
             name = line.strip('\r\n')#.split(',')[0]
             syns = wn.synsets('_'.join(name.split()), pos='n')
-            print '~' * 40
-            print
-            print name
-            print
+            print('~' * 40)
+            print()
+            print(name)
+            print()
             for n, syn in enumerate(syns):
-                print n, '-', syn.definition()
-            print
+                print(n, '-', syn.definition())
+            print()
             while True:
                 num = raw_input('Which definition is correct? (or type another name to check) ')
                 if num == 'q':
@@ -136,13 +155,13 @@ class Stefania(base.Base):
                 try:
                     num = int(num)
                 except:
-                    print
-                    print name
-                    print
+                    print()
+                    print(name)
+                    print()
                     syns += wn.synsets(num, pos='n')
                     for n, syn in enumerate(syns):
-                        print n, ' - ', syn.definition()
-                    print
+                        print(n, ' - ', syn.definition())
+                    print()
                 else:
                     if num in range(len(syns)):
                         break
@@ -152,28 +171,29 @@ class Stefania(base.Base):
             f.write(','.join([synid, name, syn.definition()]))
         f.close()
 
-    def gen_alpha(self):
+    def _gen_alpha(self):
+        path = 'stefania/img/alpha'
+        if not os.path.isdir(path): os.makedirs(path)
         for fn in sorted(glob.glob('stefania/img/*.jpg')):
             fname = os.path.basename(fn)
             newname = fname.split('.')[0] + '.png'
             newfname = os.path.join('stefania/img/alpha', newname)
             fuzz = '3%'
-            # if fname == 'hopStim_054.jpg':
-            #     fuzz = '5%'
-            # else:
-            #     fuzz = '10%'
-            subprocess.call(('convert {} -alpha set -channel RGBA -fuzz ' + fuzz +
-                            ' -fill none -floodfill +0+0 white -blur 1x1 {}').format(fn, newfname).split())
+            subprocess.call(('convert {} -alpha set -channel RGBA -fuzz {} '
+                             '-fill none -floodfill +0+0 white -blur 1x1 '
+                             '{}').format(fn, fuzz, newfname).split())
 
-def gen_sil(**kwargs):
-    for fn in sorted(glob.glob('img/*.jpg')):
-        fname = os.path.basename(fn)
-        newname = fname.split('.')[0] + '.png'
-        newfname = os.path.join('img/sil_new', newname)
-        fuzz = '3%'
-        subprocess.call(('convert {} -alpha set -channel RGBA -fuzz ' + fuzz +
-                        ' -fill none -floodfill +0+0 white -blur 1x1 '
-                        '-alpha extract -negate {}').format(fn, newfname).split())
+    def _gen_sil(self):
+        path = 'stefania/img/sil'
+        if not os.path.isdir(path): os.makedirs(path)
+        for fn in sorted(glob.glob('stefania/img/*.jpg')):
+            fname = os.path.basename(fn)
+            newname = fname.split('.')[0] + '.png'
+            newfname = os.path.join(path, newname)
+            fuzz = '3%'
+            subprocess.call(('convert {} -alpha set -channel RGBA -fuzz {} '
+                            '-fill none -floodfill +0+0 white -blur 1x1 '
+                            '-alpha extract -negate {}').format(fn, fuzz, newfname).split())
 
 def corr_models(mods1_dis, mods2_dis):
     df = []
@@ -260,9 +280,15 @@ class Compare(base.Compare):
     def __init__(self, *args):
         super(Compare, self).__init__(*args)
 
-    # def corr(self):
-    #
-    #     return super(Compare, self).corr()
+    def dissimilarity(self):
+        for depth, model_name in self.myexp.models:
+            self.myexp.set_model(model_name)
+            self.myexp.dissimilarity()
+        self.myexp.set_subset('sil')
+        for depth, model_name in self.myexp.models:
+            self.myexp.set_model(model_name)
+            self.myexp.dissimilarity()
+
 
 def report(**kwargs):
     html = kwargs['html']
@@ -292,7 +318,7 @@ def report(**kwargs):
     kwargs['layers'] = 'output'
     kwargs['task'] = 'compare'
     kwargs['force'] = False
-    kwargs['forceresps'] = False
+    kwargs['forcemodels'] = False
     myexp = Stefania(**kwargs)
     Compare(myexp).corr()
 

@@ -1,4 +1,9 @@
-import sys, os, glob
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import sys, os, glob, subprocess
 import cPickle as pickle
 from collections import OrderedDict
 
@@ -8,8 +13,7 @@ import pandas
 import seaborn as sns
 import sklearn.cluster, sklearn.metrics
 
-sys.path.insert(0, '../../psychopy_ext')
-from psychopy_ext import models, stats
+from psychopy_ext import stats, utils
 
 import base
 
@@ -26,8 +30,11 @@ class HOP2008(base.Base):
         self.colors = OrderedDict([('px', base.COLORS[0]),
                                    ('shape', base.COLORS[1])])
 
+    def get_images(self):
+        self._gen_alpha()
+
     def mds(self):
-        path = os.path.join('hop2008', 'img', 'png', '*.*')
+        path = os.path.join('hop2008', 'img', 'alpha', '*.*')
         icons = sorted(glob.glob(path))
         super(HOP2008, self).mds(icons=icons, seed=3)  # to match behav
 
@@ -169,36 +176,36 @@ class HOP2008(base.Base):
         df['similarity'] = 1 - df.dissimilarity
         group = df.copy()
         del group['dissimilarity']
-        print group
+        print(group)
 
         if self.task == 'run' and plot:
             self.plot_single(group, 'dis_group')
         return group
 
-    def gen_png(self):
-        import subprocess
-        for f in sorted(glob.glob('img/*.tif')):
+    def _gen_alpha(self):
+        path = 'hop2008/img/alpha'
+        if not os.path.isdir(path): os.makedirs(path)
+        for f in sorted(glob.glob('hop2008/img/*.tif')):
             fname = os.path.basename(f)
             newname = fname.split('.')[0] + '.png'
-            newname = os.path.join('img/png', newname)
-            im = models.load_images(f)
-            scipy.misc.imsave(newname, np.dstack([im,im,im]))
-            subprocess.call('convert {} -alpha set -channel RGBA '
-                            '-fuzz 40% -fill none '
-                            '-floodfill +0+0 rgb(95,95,95) '
-                            '{}'.format(newname, newname).split())
-            print models.load_images(newname).shape
-            sys.exit()
+            newname = os.path.join(path, newname)
+            # and now some ridiculousness just because ImageMagick can't make
+            # alpha channel for no reason
+            alphaname = fname.split('.')[0] + '_alpha.png'
+            alphaname = os.path.join(path, alphaname)
 
-    def place_on_bckg(self):
-        import subprocess
-        bckgs = sorted(glob.glob('img/bckg/*.jpg'))
-        ims = sorted(glob.glob('img/png/*.png'))
-        for b, f in zip(bckgs, ims):
-            fname = os.path.basename(f)
-            newname = fname.split('.')[0] + '.png'
-            newname = os.path.join('img/with_bckg', newname)
-            subprocess.call('composite -gravity center {} {} {}'.format(f, b, newname).split())
+            subprocess.call('convert {} -alpha set -channel RGBA '
+                            '-fuzz 10% -fill none '
+                            '-floodfill +0+0 rgba(100,100,100,0) '
+                            '{}'.format(f, newname).split())
+            subprocess.call('convert {} -alpha set -channel RGBA '
+                            '-fuzz 10% -fill none '
+                            '-floodfill +0+0 rgb(100,100,100) '
+                            '-alpha extract {}'.format(f, alphaname).split())
+            im = utils.load_image(newname)
+            alpha = utils.load_image(alphaname)
+            scipy.misc.imsave(newname, np.dstack([im,im,im,alpha]))
+            os.remove(alphaname)
 
 def remake_hop2008(**kwargs):
     data = scipy.io.loadmat('hop2008_behav.mat')
@@ -286,6 +293,6 @@ def report(**kwargs):
     kwargs['task'] = 'compare'
     kwargs['func'] = 'corr'
     kwargs['force'] = False
-    kwargs['forceresps'] = False
+    kwargs['forcemodels'] = False
     myexp = HOP2008(**kwargs)
     Compare(myexp).corr()

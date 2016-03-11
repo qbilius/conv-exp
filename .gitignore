@@ -55,3 +55,16 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# OS X ._
+._*
+.DS_Store
+
+# Custom
+computed/
+snodgrass/img/
+hop2008/img/alpha/
+fonts/data/fonts/
+fonts/img/
+geons/img/
+stefania/img/
