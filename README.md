@@ -54,8 +54,9 @@ Also, I use ImageMagick during runtime for converting and processing images, whi
 All experiments were done using Python 2.7, but the code should compatible with Python 3+ as I included `__future__` imports (but this has not been tested). I recommend using [conda](http://conda.pydata.org/miniconda.html) because it makes it easy to install all dependencies.
 
 Specific packages:
-    - `psychopy_ext` 0.6 (`pip install psychopy_ext`; not yet available), which requires numpy, scipy, pandas, seaborn
-    - `ntlk` (make sure to get `nltk` data: `import nltk; nltk.download()`
+
+- `psychopy_ext` 0.6 (`pip install psychopy_ext`; not yet available), which requires numpy, scipy, pandas, seaborn
+- `ntlk` (make sure to get `nltk` data: `import nltk; nltk.download()`
     )
 
 ## Stimuli
