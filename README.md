@@ -55,7 +55,7 @@ All experiments were done using Python 2.7, but the code should compatible with 
 
 Specific packages:
 
-- `psychopy_ext` 0.6 (`pip install psychopy_ext`; not yet available), which requires numpy, scipy, pandas, seaborn
+- `psychopy_ext` 0.6 (`pip install psychopy_ext`), which requires numpy, scipy, pandas, seaborn
 - `ntlk` (make sure to get `nltk` data: `import nltk; nltk.download()`
     )
 
