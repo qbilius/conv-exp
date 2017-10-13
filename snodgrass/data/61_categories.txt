@@ -1,0 +1,62 @@
+no,name
+1,accordion
+5,ant
+9,artichoke
+16,banana
+17,barn
+18,barrel
+23,bee
+37,broom
+44,candle
+52,chain
+57,church
+72,desk
+80,drum
+85,envelope
+92,flute
+93,fly
+96,football helmet
+99,French horn
+101,frying pan
+102,garbage can
+108,gorilla
+110,grasshopper
+114,hammer
+117,harp
+123,iron
+135,lemon
+136,leopard
+139,light switch
+140,lion
+143,lock
+144,mitten
+151,nail
+153,necklace
+158,orange
+159,ostrich
+161,paintbrush
+164,peacock
+171,piano
+172,pig
+173,pineapple
+175,pitcher
+185,refrigerator
+188,rocking chair
+192,ruler
+194,salt shaker
+198,screw
+199,screwdriver
+206,skunk
+211,sock
+220,strawberry
+225,swing
+230,thimble
+233,tiger
+234,toaster
+239,traffic light
+243,trumpet
+245,umbrella
+246,vase
+248,violin
+255,whistle
+260,zebra
